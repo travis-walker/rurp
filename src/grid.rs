@@ -43,8 +43,8 @@ mod tests {
     #[rstest]
     #[case(4000, 709, 1350, f64::NAN)]
     #[case(8000, 354, 675, f64::NEG_INFINITY)]
-    #[case(999, 2842, 5408, f64::MAX)]
-    fn test_from_bounds_resolution(
+    #[case(1200, 2366, 4502, f64::MAX)]
+    fn test_from_bounds(
         #[case] resolution: usize,
         #[case] expected_height: usize,
         #[case] expected_width: usize,
