@@ -1,4 +1,6 @@
 use ndarray::Array1;
+
+#[derive(Debug)]
 pub struct Point {
     pub x: f64,
     pub y: f64,
@@ -10,7 +12,7 @@ impl Point {
         Point {
             x,
             y,
-            values: Array1::from_shape_vec(values.len(), values).unwrap(),
+            values: Array1::from_vec(values),
         }
     }
 }
