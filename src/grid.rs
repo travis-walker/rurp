@@ -1,5 +1,6 @@
 use ndarray::{Array1, Array2, Array3};
 
+#[derive(Debug)]
 pub struct Grid {
     pub nodata: f64,
     pub data: Array3<f64>,
@@ -16,8 +17,8 @@ impl Grid {
         top: f64,
         resolution: usize,
     ) -> Self {
-        let width = (right - left) as usize / resolution;
-        let height = (top - bottom) as usize / resolution;
+        let width = ((right - left) / resolution as f64).ceil() as usize;
+        let height = ((top - bottom) / resolution as f64).ceil() as usize;
 
         let data = Array3::from_elem((height, width, 1), nodata);
 
@@ -41,9 +42,9 @@ mod tests {
     }
 
     #[rstest]
-    #[case(4000, 709, 1350, f64::NAN)]
-    #[case(8000, 354, 675, f64::NEG_INFINITY)]
-    #[case(1200, 2366, 4502, f64::MAX)]
+    #[case(4000, 710, 1351, f64::NAN)]
+    #[case(8000, 355, 676, f64::NEG_INFINITY)]
+    #[case(1200, 2367, 4503, f64::MAX)]
     fn test_from_bounds(
         #[case] resolution: usize,
         #[case] expected_height: usize,
