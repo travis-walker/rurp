@@ -2,6 +2,14 @@ use crate::grid::*;
 use crate::point::*;
 use std::collections::HashMap;
 
+#[allow(dead_code)]
+enum InterpolationMethod {
+    NearestNeighbor,
+    // NaturalNeighbor,
+    // InverseDistanceWeighting,
+    // GaussianProcessRegression,
+}
+
 #[derive(thiserror::Error, Debug)]
 pub enum InterpolationError {
     #[error("point is outside grid")]
@@ -41,6 +49,10 @@ pub fn add_point_data_to_grid(
     }
     Ok(())
 }
+#[allow(dead_code)]
+fn apply_nearest_neighbor_interpolation(grid: &mut Grid) {
+    todo!();
+}
 
 #[cfg(test)]
 mod tests {
@@ -48,45 +60,82 @@ mod tests {
     use ndarray::Array;
     use rstest::rstest;
 
-    #[rstest]
-    #[case(0., 0., 10., 10., 1, 30)]
-    #[case(-100000., 100000., 100000., 200000., 1000, 9999)]
-    #[case::conus(-2221060., 523589., 3181702., 3363319., 4000, 99999)]
-    fn test_it_add_point_data_to_grid(
-        #[case] left: f64,
-        #[case] bottom: f64,
-        #[case] right: f64,
-        #[case] top: f64,
-        #[case] resolution: usize,
-        #[case] num_stub_stations: usize,
-    ) {
-        let x_iter =
-            Array::linspace(left, right - resolution as f64 / 2., num_stub_stations).into_iter();
-        let y_iter =
-            Array::linspace(bottom, top - resolution as f64 / 2., num_stub_stations).into_iter();
-        let value_iter = Array::linspace(0., 100., num_stub_stations)
+    fn build_stub_point_data(
+        left: f64,
+        bottom: f64,
+        right: f64,
+        top: f64,
+        point_distance: f64,
+        point_count: usize,
+    ) -> Vec<Point> {
+        let x_iter = Array::linspace(left, right - point_distance / 2., point_count).into_iter();
+        let y_iter = Array::linspace(bottom, top - point_distance / 2., point_count).into_iter();
+        let value_iter = Array::linspace(0., 100., point_count)
             .into_iter()
             .map(|v| vec![v]);
-        let stub_point_data = x_iter
+
+        x_iter
             .zip(y_iter)
             .zip(value_iter)
             .map(|((x, y), values)| Point::new(x, y, values))
-            .collect::<Vec<Point>>();
-        let mut grid = Grid::empty_from_bounds(f64::NAN, left, bottom, right, top, resolution);
-
-        add_point_data_to_grid(&stub_point_data, &mut grid).unwrap();
-
-        insta::assert_debug_snapshot!(grid);
+            .collect::<Vec<Point>>()
     }
 
-    #[rstest]
-    #[case::x_out_of_bounds(Point::new(2., -1., vec![1.]))]
-    #[case::y_out_of_bounds(Point::new(11.0, 2., vec![1.]))]
-    fn test_it_returns_error_if_points_are_outside_grid(#[case] err_point: Point) {
-        let err_points = vec![err_point];
-        let mut grid = Grid::empty_from_bounds(f64::NAN, 0., 0., 10., 10., 1);
+    mod test_add_point_data_to_grid {
+        use super::*;
 
-        let result = add_point_data_to_grid(&err_points, &mut grid);
-        assert!(result.is_err())
+        #[rstest]
+        #[case(0., 0., 10., 10., 1, 30)]
+        #[case(-100000., 100000., 100000., 200000., 1000, 9999)]
+        #[case::conus(-2221060., 523589., 3181702., 3363319., 4000, 99999)]
+        fn test_it_add_points_data_to_grid(
+            #[case] left: f64,
+            #[case] bottom: f64,
+            #[case] right: f64,
+            #[case] top: f64,
+            #[case] resolution: usize,
+            #[case] stub_point_count: usize,
+        ) {
+            let mut grid = Grid::empty_from_bounds(f64::NAN, left, bottom, right, top, resolution);
+            let stub_point_data = build_stub_point_data(
+                left,
+                bottom,
+                right,
+                top,
+                resolution as f64,
+                stub_point_count,
+            );
+
+            add_point_data_to_grid(&stub_point_data, &mut grid).unwrap();
+
+            insta::assert_debug_snapshot!(grid.data);
+        }
+
+        #[rstest]
+        #[case::x_out_of_bounds(Point::new(2., -1., vec![1.]))]
+        #[case::y_out_of_bounds(Point::new(11.0, 2., vec![1.]))]
+        fn test_it_returns_error_if_points_are_outside_grid(#[case] err_point: Point) {
+            let err_points = vec![err_point];
+            let mut grid = Grid::empty_from_bounds(f64::NAN, 0., 0., 10., 10., 1);
+
+            let result = add_point_data_to_grid(&err_points, &mut grid);
+            assert!(result.is_err())
+        }
+    }
+    mod test_apply_nearest_neighbor_interpolation {
+        use super::*;
+
+        #[rstest]
+        fn test_uniform_data() {
+            let (left, bottom, right, top, resolution) = (-10., 0., 10., 10., 1);
+            let mut grid = Grid::empty_from_bounds(f64::NAN, left, bottom, right, top, resolution);
+            grid.data
+                .indexed_iter_mut()
+                .for_each(|((y, x, _), cell)| *cell = (y + x) as f64);
+
+            apply_nearest_neighbor_interpolation(&mut grid);
+
+            // insta::assert_debug_snapshot!(grid.data);
+        }
     }
 }
