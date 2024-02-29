@@ -30,6 +30,20 @@ impl Grid {
 
         Grid { nodata, data, x, y }
     }
+    pub fn width(&self) -> usize {
+        self.data.shape()[1]
+    }
+    pub fn height(&self) -> usize {
+        self.data.shape()[0]
+    }
+    pub fn bounds(&self) -> (f64, f64, f64, f64) {
+        (
+            self.x[[0, 0]],
+            self.y[[0, 0]],
+            self.x[[0, self.width() - 1]],
+            self.y[[self.height() - 1, 0]],
+        )
+    }
 }
 
 #[cfg(test)]
@@ -75,5 +89,24 @@ mod tests {
         assert!(equivalent(grid.data[[mid_y, mid_x, 0]], nodata));
         assert!((grid.x[[mid_y, mid_x]] - ((right + left) / 2.)).abs() < resolution as f64);
         assert!((grid.y[[mid_y, mid_x]] - ((top + bottom) / 2.)).abs() < resolution as f64);
+    }
+
+    #[rstest]
+    #[case(0., 0., 10., 15., 1, 15, 10)]
+    #[case(-2221060., 523589., 3181702., 3363319., 8000, 355, 676)]
+    fn test_properties(
+        #[case] left: f64,
+        #[case] bottom: f64,
+        #[case] right: f64,
+        #[case] top: f64,
+        #[case] resolution: usize,
+        #[case] expected_height: usize,
+        #[case] expected_width: usize,
+    ) {
+        let grid = Grid::empty_from_bounds(f64::NAN, left, bottom, right, top, resolution);
+
+        assert_eq!(grid.width(), expected_width);
+        assert_eq!(grid.height(), expected_height);
+        assert_eq!(grid.bounds(), (left, bottom, right, top));
     }
 }
