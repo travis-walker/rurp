@@ -1,4 +1,8 @@
+use euclid::Transform2D;
 use ndarray::{Array1, Array2, Array3};
+
+pub struct WorldSpace;
+pub struct ScreenSpace;
 
 #[derive(Debug)]
 pub struct Grid {
@@ -36,6 +40,12 @@ impl Grid {
     pub fn height(&self) -> usize {
         self.data.shape()[0]
     }
+    pub fn world_width(&self) -> f64 {
+        self.x[[0, self.width() - 1]] - self.x[[0, 0]]
+    }
+    pub fn world_height(&self) -> f64 {
+        self.y[[self.height() - 1, 0]] - self.y[[0, 0]]
+    }
     pub fn bounds(&self) -> (f64, f64, f64, f64) {
         (
             self.x[[0, 0]],
@@ -44,10 +54,21 @@ impl Grid {
             self.y[[self.height() - 1, 0]],
         )
     }
+    pub fn screen_to_world_transform(&self) -> Transform2D<f64, ScreenSpace, WorldSpace> {
+        self.world_to_screen_transform().inverse().unwrap()
+    }
+    pub fn world_to_screen_transform(&self) -> Transform2D<f64, WorldSpace, ScreenSpace> {
+        Transform2D::translation(-self.x[[0, 0]], -self.y[[0, 0]]).then_scale(
+            self.width() as f64 / self.world_width(),
+            self.height() as f64 / self.world_height(),
+        )
+    }
 }
 
 #[cfg(test)]
 mod tests {
+    use core::f64;
+
     use super::*;
     use rstest::rstest;
 
@@ -108,5 +129,29 @@ mod tests {
         assert_eq!(grid.width(), expected_width);
         assert_eq!(grid.height(), expected_height);
         assert_eq!(grid.bounds(), (left, bottom, right, top));
+    }
+    #[rstest]
+    #[case(-1., -1., 10., 15., 1, [0., 0.].into(), [-1., -1.].into())]
+    #[case(-2221060., 523589., 3181702., 3363319., 8000, [0., 0.].into(), [-2221060., 523589.].into())]
+    fn test_transform(
+        #[case] left: f64,
+        #[case] bottom: f64,
+        #[case] right: f64,
+        #[case] top: f64,
+        #[case] resolution: usize,
+        #[case] test_point_screen: euclid::Point2D<f64, ScreenSpace>,
+        #[case] test_point_world: euclid::Point2D<f64, WorldSpace>,
+    ) {
+        let grid = Grid::empty_from_bounds(f64::NAN, left, bottom, right, top, resolution);
+
+        let s_w_transform = grid.screen_to_world_transform();
+
+        let sw_transformed_point = s_w_transform.transform_point(test_point_screen);
+        assert_eq!(sw_transformed_point, test_point_world);
+
+        let w_s_transform = grid.world_to_screen_transform();
+
+        let ws_transformed_point = w_s_transform.transform_point(test_point_world);
+        assert_eq!(ws_transformed_point, test_point_screen);
     }
 }
