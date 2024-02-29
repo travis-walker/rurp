@@ -129,6 +129,9 @@ mod tests {
         assert_eq!(grid.width(), expected_width);
         assert_eq!(grid.height(), expected_height);
         assert_eq!(grid.bounds(), (left, bottom, right, top));
+
+        assert_eq!(grid.world_width(), right - left);
+        assert_eq!(grid.world_height(), top - bottom);
     }
     #[rstest]
     #[case(-1., -1., 10., 15., 1, [0., 0.].into(), [-1., -1.].into())]
