@@ -1,6 +1,6 @@
 use euclid::Transform2D;
+use euclid::UnknownUnit;
 use ndarray::{Array1, Array2, Array3};
-
 pub struct WorldSpace;
 pub struct ScreenSpace;
 
@@ -54,10 +54,10 @@ impl Grid {
             self.y[[self.height() - 1, 0]],
         )
     }
-    pub fn screen_to_world_transform(&self) -> Transform2D<f64, ScreenSpace, WorldSpace> {
+    pub fn screen_to_world_transform(&self) -> Transform2D<f64, UnknownUnit, UnknownUnit> {
         self.world_to_screen_transform().inverse().unwrap()
     }
-    pub fn world_to_screen_transform(&self) -> Transform2D<f64, WorldSpace, ScreenSpace> {
+    pub fn world_to_screen_transform(&self) -> Transform2D<f64, UnknownUnit, UnknownUnit> {
         Transform2D::translation(-self.x[[0, 0]], -self.y[[0, 0]]).then_scale(
             self.width() as f64 / self.world_width(),
             self.height() as f64 / self.world_height(),
@@ -142,8 +142,8 @@ mod tests {
         #[case] right: f64,
         #[case] top: f64,
         #[case] resolution: usize,
-        #[case] test_point_screen: euclid::Point2D<f64, ScreenSpace>,
-        #[case] test_point_world: euclid::Point2D<f64, WorldSpace>,
+        #[case] test_point_screen: euclid::Point2D<f64, UnknownUnit>,
+        #[case] test_point_world: euclid::Point2D<f64, UnknownUnit>,
     ) {
         let grid = Grid::empty_from_bounds(f64::NAN, left, bottom, right, top, resolution);
 

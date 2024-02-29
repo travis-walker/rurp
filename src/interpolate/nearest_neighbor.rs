@@ -1,50 +1,97 @@
-use crate::grid::*;
-use crate::point::Point;
-#[allow(dead_code)]
-pub fn apply_nearest_neighbor_interpolation(grid: &mut Grid) {
-    todo!();
+use crate::grid::Grid;
+use geo::Polygon;
+use geo_rasterize::LabelBuilder;
+use rayon::iter::{IndexedParallelIterator, IntoParallelRefIterator, ParallelIterator};
+use voronator::delaunator::Point;
+use voronator::VoronoiDiagram;
+
+// TODO: make generic raster method on grid
+fn voronoi_to_grid(voronoi: &VoronoiDiagram<Point>, point_z: &[f64], grid: &mut Grid) {
+    let grid_shape = grid.data.shape();
+
+    let mut rasterizer = LabelBuilder::background(grid.nodata)
+        .width(grid_shape[1])
+        .height(grid_shape[0])
+        .geo_to_pix(grid.world_to_screen_transform())
+        .build()
+        .unwrap();
+    voronoi
+        .cells()
+        .iter()
+        .zip(point_z.iter())
+        .for_each(|(cell, z)| {
+            let p = cell
+                .points()
+                .par_iter()
+                .map(|x| (x.x, x.y))
+                .collect::<Vec<_>>();
+            let polygon = Polygon::new(p.into(), vec![]);
+            rasterizer.rasterize(&polygon, *z).unwrap();
+        });
+    grid.data = rasterizer
+        .finish()
+        .into_shape((grid_shape[0], grid_shape[1], 1))
+        .unwrap();
+}
+
+pub fn apply_nearest_neighbor_interpolation(x: &[f64], y: &[f64], z: &[f64], grid: &mut Grid) {
+    let (left, bottom, right, top) = grid.bounds();
+    let points = x
+        .par_iter()
+        .zip(y.par_iter())
+        .map(|(p_x, p_y)| (*p_x, *p_y))
+        .collect::<Vec<_>>();
+    let voronoi = VoronoiDiagram::from_tuple(&(left, bottom), &(right, top), &points).unwrap();
+    voronoi_to_grid(&voronoi, z, grid);
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ndarray::Array;
+    use rand::distributions::Uniform;
+    use rand::rngs::StdRng;
+    use rand::{Rng, SeedableRng};
     use rstest::rstest;
 
-    #[allow(dead_code)]
     fn build_stub_point_data(
         left: f64,
         bottom: f64,
         right: f64,
         top: f64,
-        point_distance: f64,
         point_count: usize,
-    ) -> Vec<Point> {
-        let x_iter = Array::linspace(left, right - point_distance / 2., point_count).into_iter();
-        let y_iter = Array::linspace(bottom, top - point_distance / 2., point_count).into_iter();
-        let value_iter = Array::linspace(0., 100., point_count)
-            .into_iter()
-            .map(|v| vec![v]);
-
-        x_iter
-            .zip(y_iter)
-            .zip(value_iter)
-            .map(|((x, y), values)| Point::new(x, y, values))
-            .collect::<Vec<Point>>()
+    ) -> (Vec<f64>, Vec<f64>, Vec<f64>) {
+        let mut rng = StdRng::seed_from_u64(43691);
+        let x_range = Uniform::new(left, right);
+        let y_range = Uniform::new(bottom, top);
+        let z_range = Uniform::new(-5.0f64, 120.0f64);
+        (
+            (0..point_count).map(|_| rng.sample(x_range)).collect(),
+            (0..point_count).map(|_| rng.sample(y_range)).collect(),
+            (0..point_count).map(|_| rng.sample(z_range)).collect(),
+        )
     }
 
     mod test_apply_nearest_neighbor_interpolation {
         use super::*;
 
         #[rstest]
-        fn test_1() {
-            let (left, bottom, right, top, resolution) = (-10., 0., 10., 10., 1);
+        #[case(-10., 0., 10., 10., 1, 10)]
+        #[case(-2221060., 523589., 3181702., 3363319., 4000, 8000)]
+        fn test_it_interpolates_as_expected(
+            #[case] left: f64,
+            #[case] bottom: f64,
+            #[case] right: f64,
+            #[case] top: f64,
+            #[case] resolution: usize,
+            #[case] point_count: usize,
+        ) {
             let mut grid = Grid::empty_from_bounds(f64::NAN, left, bottom, right, top, resolution);
-            grid.data
-                .indexed_iter_mut()
-                .for_each(|((y, x, _), cell)| *cell = (y + x) as f64);
+            let (x, y, z) = build_stub_point_data(left, bottom, right, top, point_count);
 
-            apply_nearest_neighbor_interpolation(&mut grid);
+            apply_nearest_neighbor_interpolation(&x, &y, &z, &mut grid);
+
+            dbg!(&grid.data);
+            // panic!()
 
             // insta::assert_debug_snapshot!(grid.data);
         }
