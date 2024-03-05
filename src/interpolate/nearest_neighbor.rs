@@ -1,39 +1,24 @@
 use crate::grid::Grid;
-use geo::Polygon;
-use geo_rasterize::LabelBuilder;
+use geo::{LineString, Polygon};
 use rayon::iter::{IndexedParallelIterator, IntoParallelRefIterator, ParallelIterator};
 use voronator::delaunator::Point;
 use voronator::VoronoiDiagram;
 
-// TODO: make generic raster method on grid
 fn voronoi_to_grid(voronoi: &VoronoiDiagram<Point>, point_z: &[f64], grid: &mut Grid) {
-    let grid_shape = grid.data.shape();
-
-    let mut rasterizer = LabelBuilder::background(grid.nodata)
-        .width(grid_shape[1])
-        .height(grid_shape[0])
-        .geo_to_pix(grid.world_to_screen_transform())
-        .build()
-        .unwrap();
-
-    voronoi
+    let polygons = voronoi
         .cells()
         .iter()
-        .zip(point_z.iter())
-        .for_each(|(cell, z)| {
-            let p = cell
+        .map(|cell| {
+            let exterior = cell
                 .points()
-                .par_iter()
+                .iter()
                 .map(|x| (x.x, x.y))
-                .collect::<Vec<_>>();
-            let polygon = Polygon::new(p.into(), vec![]);
-            rasterizer.rasterize(&polygon, *z).unwrap();
-        });
+                .collect::<LineString>();
+            Polygon::new(exterior, vec![])
+        })
+        .collect::<Vec<Polygon>>();
 
-    grid.data = rasterizer
-        .finish()
-        .into_shape((grid_shape[0], grid_shape[1], 1))
-        .unwrap();
+    grid.rasterize_polygons(&polygons, point_z)
 }
 
 pub fn apply_nearest_neighbor_interpolation(x: &[f64], y: &[f64], z: &[f64], grid: &mut Grid) {
@@ -75,7 +60,7 @@ mod tests {
 
     mod test_apply_nearest_neighbor_interpolation {
         use super::*;
-        // use crate::draw::draw_grid_data;
+        use crate::draw::draw_grid_data;
 
         #[rstest]
         #[case(-10., 0., 10., 10., 1, 10)]
@@ -93,10 +78,10 @@ mod tests {
             let (x, y, z) = build_stub_point_data(left, bottom, right, top, point_count);
 
             apply_nearest_neighbor_interpolation(&x, &y, &z, &mut grid);
-            // draw_grid_data(
-            //     &grid,
-            //     "test_images/test_apply_nearest_neighbor_interpolation.png",
-            // );
+            draw_grid_data(
+                &grid,
+                "test_images/test_apply_nearest_neighbor_interpolation.png",
+            );
         }
     }
 }
