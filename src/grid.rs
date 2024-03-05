@@ -1,5 +1,7 @@
 use euclid::Transform2D;
-use euclid::UnknownUnit;
+use geo::Polygon;
+use geo_rasterize::LabelBuilder;
+use geo_rasterize::Rasterizer;
 use ndarray::{Array1, Array2, Array3};
 pub struct WorldSpace;
 pub struct ScreenSpace;
@@ -10,6 +12,12 @@ pub struct Grid {
     pub data: Array3<f64>,
     pub x: Array2<f64>,
     pub y: Array2<f64>,
+    pub height: usize,
+    pub width: usize,
+    pub world_height: f64,
+    pub world_width: f64,
+    pub world_to_screen_transform: Transform2D<f64, WorldSpace, ScreenSpace>,
+    pub screen_to_world_transform: Transform2D<f64, ScreenSpace, WorldSpace>,
 }
 
 impl Grid {
@@ -32,42 +40,69 @@ impl Grid {
         let y_vals = Array1::linspace(bottom, top, height);
         let y = Array2::from_shape_fn((height, width), |(i, _)| y_vals[i]);
 
-        Grid { nodata, data, x, y }
+        let world_height = top - bottom;
+        let world_width = right - left;
+
+        let world_to_screen_transform: Transform2D<f64, WorldSpace, ScreenSpace> =
+            Transform2D::translation(-left, -bottom)
+                .then_scale(width as f64 / world_width, height as f64 / world_height);
+        let screen_to_world_transform = world_to_screen_transform.inverse().unwrap();
+        Grid {
+            nodata,
+            data,
+            x,
+            y,
+            height,
+            width,
+            world_height,
+            screen_to_world_transform,
+            world_to_screen_transform,
+            world_width,
+        }
     }
-    pub fn width(&self) -> usize {
-        self.data.shape()[1]
-    }
-    pub fn height(&self) -> usize {
-        self.data.shape()[0]
-    }
-    pub fn world_width(&self) -> f64 {
-        self.x[[0, self.width() - 1]] - self.x[[0, 0]]
-    }
-    pub fn world_height(&self) -> f64 {
-        self.y[[self.height() - 1, 0]] - self.y[[0, 0]]
-    }
+
     pub fn bounds(&self) -> (f64, f64, f64, f64) {
         (
             self.x[[0, 0]],
             self.y[[0, 0]],
-            self.x[[0, self.width() - 1]],
-            self.y[[self.height() - 1, 0]],
+            self.x[[0, self.width - 1]],
+            self.y[[self.height - 1, 0]],
         )
     }
-    pub fn screen_to_world_transform(&self) -> Transform2D<f64, UnknownUnit, UnknownUnit> {
-        self.world_to_screen_transform().inverse().unwrap()
+    pub fn rasterize_polygons(&mut self, polygons: &[Polygon<f64>], z: &[f64]) {
+        let mut rasterizer = self.build_default_rasterizer();
+
+        polygons.iter().zip(z).for_each(|(polygon, z)| {
+            rasterizer.rasterize(polygon, *z).unwrap();
+        });
+
+        self.data = rasterizer
+            .finish()
+            .into_shape((self.height, self.width, 1))
+            .unwrap();
     }
-    pub fn world_to_screen_transform(&self) -> Transform2D<f64, UnknownUnit, UnknownUnit> {
-        Transform2D::translation(-self.x[[0, 0]], -self.y[[0, 0]]).then_scale(
-            self.width() as f64 / self.world_width(),
-            self.height() as f64 / self.world_height(),
-        )
+}
+
+impl Grid {
+    fn build_default_rasterizer(&self) -> Rasterizer<f64> {
+        let geo_pix_transform = Transform2D::translation(-self.x[[0, 0]], -self.y[[0, 0]])
+            .then_scale(
+                self.width as f64 / self.world_width,
+                self.height as f64 / self.world_height,
+            );
+        LabelBuilder::background(self.nodata)
+            .width(self.width)
+            .height(self.height)
+            .geo_to_pix(geo_pix_transform)
+            .build()
+            .unwrap()
     }
 }
 
 #[cfg(test)]
 mod tests {
     use core::f64;
+    use geo::polygon;
 
     use super::*;
     use rstest::rstest;
@@ -126,12 +161,12 @@ mod tests {
     ) {
         let grid = Grid::empty_from_bounds(f64::NAN, left, bottom, right, top, resolution);
 
-        assert_eq!(grid.width(), expected_width);
-        assert_eq!(grid.height(), expected_height);
+        assert_eq!(grid.width, expected_width);
+        assert_eq!(grid.height, expected_height);
         assert_eq!(grid.bounds(), (left, bottom, right, top));
 
-        assert_eq!(grid.world_width(), right - left);
-        assert_eq!(grid.world_height(), top - bottom);
+        assert_eq!(grid.world_width, right - left);
+        assert_eq!(grid.world_height, top - bottom);
     }
     #[rstest]
     #[case(-1., -1., 10., 15., 1, [0., 0.].into(), [-1., -1.].into())]
@@ -142,19 +177,34 @@ mod tests {
         #[case] right: f64,
         #[case] top: f64,
         #[case] resolution: usize,
-        #[case] test_point_screen: euclid::Point2D<f64, UnknownUnit>,
-        #[case] test_point_world: euclid::Point2D<f64, UnknownUnit>,
+        #[case] test_point_screen: euclid::Point2D<f64, ScreenSpace>,
+        #[case] test_point_world: euclid::Point2D<f64, WorldSpace>,
     ) {
         let grid = Grid::empty_from_bounds(f64::NAN, left, bottom, right, top, resolution);
 
-        let s_w_transform = grid.screen_to_world_transform();
+        let s_w_transform = grid.screen_to_world_transform;
 
         let sw_transformed_point = s_w_transform.transform_point(test_point_screen);
         assert_eq!(sw_transformed_point, test_point_world);
 
-        let w_s_transform = grid.world_to_screen_transform();
+        let w_s_transform = grid.world_to_screen_transform;
 
         let ws_transformed_point = w_s_transform.transform_point(test_point_world);
         assert_eq!(ws_transformed_point, test_point_screen);
+    }
+
+    #[rstest]
+    #[case(0., 0., 10., 10., 1, polygon![(x: 1., y: 1.), (x: 9., y: 1.), (x: 9., y: 9.), (x: 1., y: 9.)], 10.)]
+    fn test_rasterize_polygon(
+        #[case] left: f64,
+        #[case] bottom: f64,
+        #[case] right: f64,
+        #[case] top: f64,
+        #[case] resolution: usize,
+        #[case] test_polygon: geo::Polygon<f64>,
+        #[case] z: f64,
+    ) {
+        let mut grid = Grid::empty_from_bounds(f64::NAN, left, bottom, right, top, resolution);
+        grid.rasterize_polygons(&[test_polygon], &[z]);
     }
 }
