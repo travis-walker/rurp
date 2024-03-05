@@ -60,13 +60,14 @@ mod tests {
 
     mod test_apply_nearest_neighbor_interpolation {
         use super::*;
-        use crate::draw::draw_grid_data;
+        use crate::draw::wite_grid_data;
 
         #[rstest]
-        #[case(-10., 0., 10., 10., 1, 10)]
-        #[case(-2221060., 523589., 3181702., 3363319., 4000, 8000)]
-        #[case(-2221060., 523589., 3181702., 3363319., 2000, 16000)]
+        #[case(1, -10., 0., 10., 10., 1, 10)]
+        #[case(2, -2221060., 523589., 3181702., 3363319., 4000, 8000)]
+        #[case(3, -2221060., 523589., 3181702., 3363319., 2000, 16000)]
         fn test_it_interpolates_as_expected(
+            #[case] case_number: usize,
             #[case] left: f64,
             #[case] bottom: f64,
             #[case] right: f64,
@@ -78,10 +79,9 @@ mod tests {
             let (x, y, z) = build_stub_point_data(left, bottom, right, top, point_count);
 
             apply_nearest_neighbor_interpolation(&x, &y, &z, &mut grid);
-            draw_grid_data(
-                &grid,
-                "test_images/test_apply_nearest_neighbor_interpolation.png",
-            );
+            let path =
+                format!("snapshots/test_apply_nearest_neighbor_interpolation-{case_number}.png");
+            wite_grid_data(&grid, path.as_str());
         }
     }
 }

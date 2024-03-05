@@ -23,7 +23,7 @@ pub fn add_point_data_to_grid(
             || point_grid_pos_x < 0
             || point_grid_pos_x >= grid.data.shape()[1] as isize
         {
-            return Err(InterpolationError::PointOutsideOfGrid);
+            return Err(InterpolationError::PointOutsideGrid);
         }
         points_grid_points_map
             .entry((point_grid_pos_y as usize, point_grid_pos_x as usize))

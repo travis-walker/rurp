@@ -1,13 +1,15 @@
 pub enum InterpolationMethod {
+    Linear,
     NearestNeighbor,
-    // NaturalNeighbor,
-    // InverseDistanceWeighting,
     // GaussianProcessRegression,
+    // InverseDistanceWeighting,
+    // NaturalNeighbor,
 }
 #[derive(thiserror::Error, Debug)]
 pub enum InterpolationError {
     #[error("point is outside grid")]
-    PointOutsideOfGrid,
+    PointOutsideGrid,
 }
 pub mod add_to_grid;
+pub mod linear;
 pub mod nearest_neighbor;
