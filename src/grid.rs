@@ -1,7 +1,6 @@
 use euclid::Transform2D;
 use geo::Polygon;
-use geo_rasterize::LabelBuilder;
-use geo_rasterize::Rasterizer;
+use geo_rasterize::{LabelBuilder, Rasterizer};
 use ndarray::{Array1, Array2, Array3};
 pub struct WorldSpace;
 pub struct ScreenSpace;
@@ -101,8 +100,9 @@ impl Grid {
 
 #[cfg(test)]
 mod tests {
+    use crate::draw::write_grid_data;
     use core::f64;
-    use geo::polygon;
+    use geo::{coord, polygon};
 
     use super::*;
     use rstest::rstest;
@@ -194,17 +194,28 @@ mod tests {
     }
 
     #[rstest]
-    #[case(0., 0., 10., 10., 1, polygon![(x: 1., y: 1.), (x: 9., y: 1.), (x: 9., y: 9.), (x: 1., y: 9.)], 10.)]
+    #[case(1, [0., 0., 10., 10.], 1, polygon![(x: 2., y: 2.), (x: 7., y: 2.), (x: 7., y: 7.), (x: 2., y: 7.), (x: 2., y: 2.)])]
+    #[case(2, [-2221060., 523589., 3181702., 3363319.], 2000, polygon![
+            coord! {x: -1951222.7162696766, y: 2354912.258633185},
+            coord! {x: -2041264.2912797555, y: 2023308.6208163623},
+            coord! {x: -1678141.1226114093, y: 1486297.11602201},
+            coord! {x: -1665558.550028715, y: 1608253.2563886316},
+            coord! {x: -1601328.9245228115, y: 1609401.5643781873},
+            coord! {x: -1476039.3969683559, y: 2250299.1512043863},
+            coord! {x: -1951222.7162696766, y: 2354912.258633185},
+        ])]
     fn test_rasterize_polygon(
-        #[case] left: f64,
-        #[case] bottom: f64,
-        #[case] right: f64,
-        #[case] top: f64,
+        #[case] case_number: usize,
+        #[case] bounds: [f64; 4],
         #[case] resolution: usize,
         #[case] test_polygon: geo::Polygon<f64>,
-        #[case] z: f64,
     ) {
+        let [left, bottom, right, top] = bounds;
         let mut grid = Grid::empty_from_bounds(f64::NAN, left, bottom, right, top, resolution);
-        grid.rasterize_polygons(&[test_polygon], &[z]);
+
+        grid.rasterize_polygons(&[test_polygon], &[50.]);
+
+        let path = format!("snapshots/test_rasterize_polygon_{case_number}.png");
+        write_grid_data(&grid, path.as_str());
     }
 }

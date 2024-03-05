@@ -60,7 +60,7 @@ mod tests {
 
     mod test_apply_nearest_neighbor_interpolation {
         use super::*;
-        use crate::draw::wite_grid_data;
+        use crate::draw::write_grid_data;
 
         #[rstest]
         #[case(1, -10., 0., 10., 10., 1, 10)]
@@ -82,7 +82,7 @@ mod tests {
             let path = format!(
                 "interpolate/snapshots/test_apply_nearest_neighbor_interpolation-{case_number}.png"
             );
-            wite_grid_data(&grid, path.as_str());
+            write_grid_data(&grid, path.as_str());
         }
     }
 }
