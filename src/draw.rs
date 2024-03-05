@@ -1,5 +1,6 @@
 use crate::grid::Grid;
 use image::ImageBuffer;
+use std::fs;
 
 pub fn draw_grid_data(grid: &Grid, path: &str) {
     let height = grid.data.shape()[0];
@@ -18,6 +19,7 @@ pub fn draw_grid_data(grid: &Grid, path: &str) {
             image::Luma([pixel_value])
         },
     );
+    let _ = fs::remove_file(path);
     img.save(path).unwrap();
 }
 

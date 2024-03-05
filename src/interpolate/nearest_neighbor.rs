@@ -15,6 +15,7 @@ fn voronoi_to_grid(voronoi: &VoronoiDiagram<Point>, point_z: &[f64], grid: &mut 
         .geo_to_pix(grid.world_to_screen_transform())
         .build()
         .unwrap();
+
     voronoi
         .cells()
         .iter()
@@ -28,6 +29,7 @@ fn voronoi_to_grid(voronoi: &VoronoiDiagram<Point>, point_z: &[f64], grid: &mut 
             let polygon = Polygon::new(p.into(), vec![]);
             rasterizer.rasterize(&polygon, *z).unwrap();
         });
+
     grid.data = rasterizer
         .finish()
         .into_shape((grid_shape[0], grid_shape[1], 1))
@@ -73,10 +75,12 @@ mod tests {
 
     mod test_apply_nearest_neighbor_interpolation {
         use super::*;
+        // use crate::draw::draw_grid_data;
 
         #[rstest]
         #[case(-10., 0., 10., 10., 1, 10)]
         #[case(-2221060., 523589., 3181702., 3363319., 4000, 8000)]
+        #[case(-2221060., 523589., 3181702., 3363319., 2000, 16000)]
         fn test_it_interpolates_as_expected(
             #[case] left: f64,
             #[case] bottom: f64,
@@ -89,11 +93,10 @@ mod tests {
             let (x, y, z) = build_stub_point_data(left, bottom, right, top, point_count);
 
             apply_nearest_neighbor_interpolation(&x, &y, &z, &mut grid);
-
-            dbg!(&grid.data);
-            // panic!()
-
-            // insta::assert_debug_snapshot!(grid.data);
+            // draw_grid_data(
+            //     &grid,
+            //     "test_images/test_apply_nearest_neighbor_interpolation.png",
+            // );
         }
     }
 }
