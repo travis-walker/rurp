@@ -79,8 +79,9 @@ mod tests {
             let (x, y, z) = build_stub_point_data(left, bottom, right, top, point_count);
 
             apply_nearest_neighbor_interpolation(&x, &y, &z, &mut grid);
-            let path =
-                format!("snapshots/test_apply_nearest_neighbor_interpolation-{case_number}.png");
+            let path = format!(
+                "interpolate/snapshots/test_apply_nearest_neighbor_interpolation-{case_number}.png"
+            );
             wite_grid_data(&grid, path.as_str());
         }
     }

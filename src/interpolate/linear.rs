@@ -37,6 +37,9 @@ mod tests {
 
         apply_linear_interpolation(&x, &y, &z, &mut grid);
 
-        wite_grid_data(&grid, "snapshots/test_apply_linear_interpolation-1.png");
+        wite_grid_data(
+            &grid,
+            "interpolate/snapshots/test_apply_linear_interpolation-1.png",
+        );
     }
 }
