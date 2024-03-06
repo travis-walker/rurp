@@ -11,5 +11,5 @@ pub enum InterpolationError {
     PointOutsideGrid,
 }
 pub mod add_to_grid;
-pub mod linear;
+pub mod inverse_distance_weighting;
 pub mod nearest_neighbor;

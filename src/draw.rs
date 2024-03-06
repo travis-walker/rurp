@@ -4,14 +4,14 @@ use image::ImageBuffer;
 use std::fs;
 
 pub fn write_grid_data(grid: &Grid, path: &str) {
-    let height = grid.data.shape()[0];
-    let width = grid.data.shape()[1];
+    let height = grid.height;
+    let width = grid.width;
     let domain_max = grid
         .data
         .iter()
         .filter(|v| v.is_finite())
         .max_by(|&a, &b| a.partial_cmp(b).unwrap())
-        .unwrap();
+        .expect("No finite values in grid data");
 
     let img = ImageBuffer::from_fn(
         width.try_into().unwrap(),

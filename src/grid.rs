@@ -84,11 +84,7 @@ impl Grid {
 
 impl Grid {
     fn build_default_rasterizer(&self) -> Rasterizer<f64> {
-        let geo_pix_transform = Transform2D::translation(-self.x[[0, 0]], -self.y[[0, 0]])
-            .then_scale(
-                self.width as f64 / self.world_width,
-                self.height as f64 / self.world_height,
-            );
+        let geo_pix_transform = self.world_to_screen_transform.to_untyped();
         LabelBuilder::background(self.nodata)
             .width(self.width)
             .height(self.height)
@@ -101,7 +97,7 @@ impl Grid {
 #[cfg(test)]
 mod tests {
     use crate::draw::write_grid_data;
-    use core::f64;
+
     use geo::{coord, polygon};
 
     use super::*;
