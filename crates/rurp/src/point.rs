@@ -16,3 +16,35 @@ impl Point {
         }
     }
 }
+
+impl From<&Point> for (f64, f64) {
+    fn from(value: &Point) -> Self {
+        (value.x, value.y)
+    }
+}
+impl From<&Point> for [f64; 2] {
+    fn from(value: &Point) -> Self {
+        [value.x, value.y]
+    }
+}
+impl From<&Point> for geo::Point {
+    fn from(value: &Point) -> Self {
+        geo::Point::new(value.x, value.y)
+    }
+}
+impl From<&Point> for geo::Coord {
+    fn from(value: &Point) -> Self {
+        geo::Coord {
+            x: value.x,
+            y: value.y,
+        }
+    }
+}
+impl From<&Point> for voronator::delaunator::Point {
+    fn from(value: &Point) -> Self {
+        voronator::delaunator::Point {
+            x: value.x,
+            y: value.y,
+        }
+    }
+}

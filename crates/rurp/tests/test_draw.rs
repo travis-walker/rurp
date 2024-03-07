@@ -11,11 +11,8 @@ fn test_draw_a_grid() {
         .for_each(|((y, x, _), value)| *value = { x + y } as f64);
 
     let file_path = env::current_dir()
-        .expect("could not access file system")
+        .unwrap()
         .join("tests/snapshots")
         .join("test_plot_a_grid_1.png");
-    write_grid_data(
-        &grid,
-        file_path.to_str().expect("unable to convert path to str"),
-    );
+    write_grid_data(&grid, file_path.to_str().unwrap());
 }

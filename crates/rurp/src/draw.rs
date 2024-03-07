@@ -11,7 +11,7 @@ pub fn write_grid_data(grid: &Grid, path: &str) {
         .iter()
         .filter(|v| v.is_finite())
         .max_by(|l, r| l.total_cmp(r))
-        .expect("No finite values in grid data");
+        .unwrap();
 
     let img = ImageBuffer::from_fn(width as u32, height as u32, |x, y| {
         let pixel_value = {
@@ -25,5 +25,5 @@ pub fn write_grid_data(grid: &Grid, path: &str) {
         image::Luma([pixel_value])
     });
     let _ = fs::remove_file(path);
-    img.save(path).expect("unable to write file");
+    img.save(path).unwrap();
 }

@@ -1,33 +1,38 @@
 use crate::grid::Grid;
+use crate::point::Point;
 use geo::{LineString, Polygon};
-use rayon::iter::{IndexedParallelIterator, IntoParallelRefIterator, ParallelIterator};
-use voronator::{delaunator::Point, VoronoiDiagram};
+use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
+use voronator::{delaunator, VoronoiDiagram};
 
-fn voronoi_to_grid(voronoi: &VoronoiDiagram<Point>, point_z: &[f64], grid: &mut Grid) {
+fn voronoi_to_grid(
+    voronoi: &VoronoiDiagram<delaunator::Point>,
+    polygon_labels: &[f64],
+    grid: &mut Grid,
+) {
     let polygons = voronoi
         .cells()
-        .iter()
+        .par_iter()
         .map(|cell| {
             let exterior = cell
                 .points()
                 .iter()
-                .map(|x| (x.x, x.y))
+                .map(|point| (point.x, point.y))
                 .collect::<LineString>();
             Polygon::new(exterior, vec![])
         })
         .collect::<Vec<Polygon>>();
 
-    grid.rasterize_polygons(&polygons, point_z);
+    grid.rasterize_polygons(&polygons, polygon_labels);
 }
 
-pub fn apply_nearest_neighbor_interpolation(x: &[f64], y: &[f64], z: &[f64], grid: &mut Grid) {
+pub fn apply_nearest_neighbor_interpolation(grid: &mut Grid, points: &[Point]) {
     let (left, bottom, right, top) = grid.bounds();
-    let points = x
-        .par_iter()
-        .zip(y.par_iter())
-        .map(|(p_x, p_y)| (*p_x, *p_y))
-        .collect::<Vec<_>>();
-    let voronoi = VoronoiDiagram::from_tuple(&(left, bottom), &(right, top), &points)
-        .expect("unable to build voronoi");
-    voronoi_to_grid(&voronoi, z, grid);
+
+    let voronoi_points: Vec<_> = points.par_iter().map(|point| point.into()).collect();
+    let polygon_labels: Vec<_> = points.par_iter().map(|point| point.values[0]).collect();
+
+    let voronoi =
+        VoronoiDiagram::from_tuple(&(left, bottom), &(right, top), &voronoi_points).unwrap();
+
+    voronoi_to_grid(&voronoi, &polygon_labels, grid);
 }

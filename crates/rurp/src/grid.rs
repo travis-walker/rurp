@@ -48,9 +48,7 @@ impl Grid {
         let world_to_screen_transform: Transform2D<f64, WorldSpace, ScreenSpace> =
             Transform2D::translation(-left, -bottom)
                 .then_scale(width as f64 / world_width, height as f64 / world_height);
-        let screen_to_world_transform = world_to_screen_transform
-            .inverse()
-            .expect("translation is invalid");
+        let screen_to_world_transform = world_to_screen_transform.inverse().unwrap();
 
         Grid {
             nodata,
@@ -74,19 +72,20 @@ impl Grid {
             self.y[[self.height - 1, 0]],
         )
     }
-    pub fn rasterize_polygons(&mut self, polygons: &[Polygon<f64>], z: &[f64]) {
+    pub fn rasterize_polygons(&mut self, polygons: &[Polygon<f64>], polygon_labels: &[f64]) {
         let mut rasterizer = self.build_default_rasterizer();
 
-        polygons.iter().zip(z).for_each(|(polygon, z)| {
-            rasterizer
-                .rasterize(polygon, *z)
-                .expect("unable eto rasterize polygon");
-        });
+        polygons
+            .iter()
+            .zip(polygon_labels)
+            .for_each(|(polygon, polygon_label)| {
+                rasterizer.rasterize(polygon, *polygon_label).unwrap();
+            });
 
         self.data = rasterizer
             .finish()
             .into_shape((self.height, self.width, 1))
-            .expect("unable to reshape rasterized data");
+            .unwrap();
     }
 }
 
@@ -98,6 +97,6 @@ impl Grid {
             .height(self.height)
             .geo_to_pix(geo_pix_transform)
             .build()
-            .expect("unable to build rasterizer")
+            .unwrap()
     }
 }
