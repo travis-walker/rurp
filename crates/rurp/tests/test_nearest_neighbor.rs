@@ -15,8 +15,7 @@ fn test_apply_nearest_neighbor_interpolation(
     #[case] resolution: usize,
     #[case] point_count: usize,
 ) {
-    let (left, bottom, right, top) = bounds;
-    let mut grid = Grid::empty_from_bounds(f64::NAN, left, bottom, right, top, resolution);
+    let mut grid = Grid::empty_from_bounds(bounds, resolution, f64::NAN);
     let points = build_stub_points(&bounds, &point_count);
 
     apply_nearest_neighbor_interpolation(&mut grid, &points);

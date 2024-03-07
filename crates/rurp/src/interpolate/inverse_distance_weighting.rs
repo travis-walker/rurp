@@ -12,9 +12,12 @@ fn weighted_value(point_a: &geo::Point, point_b: &geo::Point, z: f64, power: f64
 }
 
 pub fn apply_inverse_distance_weighting(grid: &mut Grid, points: &[Point]) {
-    grid.data
+    let x = grid.x().to_owned();
+    let y = grid.y().to_owned();
+
+    grid.data_mut()
         .iter_mut()
-        .zip(grid.x.iter().zip(grid.y.iter()))
+        .zip(x.iter().zip(y.iter()))
         .par_bridge()
         .for_each(|(grid_value, (x, y))| {
             let grid_point = geo::Point::new(*x, *y);

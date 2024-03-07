@@ -15,27 +15,28 @@ fn test_from_bounds(
     #[case] expected_width: usize,
     #[case] nodata: f64,
 ) {
+    let grid = Grid::empty_from_bounds(CONUS_BOUNDS, resolution, nodata);
+
     let (left, bottom, right, top) = CONUS_BOUNDS;
 
-    let grid = Grid::empty_from_bounds(nodata, left, bottom, right, top, resolution);
+    assert_eq!(grid.width(), expected_width);
+    assert_eq!(grid.height(), expected_height);
 
-    assert_eq!(grid.data.shape(), [expected_height, expected_width, 1]);
-
-    assert!(equivalent(&grid.data[[0, 0, 0]], &nodata));
-    assert_eq!(grid.x[[0, 0]], left);
-    assert_eq!(grid.y[[0, 0]], bottom);
+    assert!(equivalent(&grid.data()[[0, 0, 0]], &nodata));
+    assert_eq!(grid.x()[[0, 0]], left);
+    assert_eq!(grid.y()[[0, 0]], bottom);
 
     let max_y = expected_height - 1;
     let max_x = expected_width - 1;
-    assert!(equivalent(&grid.data[[max_y, max_x, 0]], &nodata));
-    assert_eq!(grid.x[[max_y, max_x]], right);
-    assert_eq!(grid.y[[max_y, max_x]], top);
+    assert!(equivalent(&grid.data()[[max_y, max_x, 0]], &nodata));
+    assert_eq!(grid.x()[[max_y, max_x]], right);
+    assert_eq!(grid.y()[[max_y, max_x]], top);
 
     let mid_y = expected_height / 2;
     let mid_x = expected_width / 2;
-    assert!(equivalent(&grid.data[[mid_y, mid_x, 0]], &nodata));
-    assert!((grid.x[[mid_y, mid_x]] - ((right + left) / 2.)).abs() < resolution as f64);
-    assert!((grid.y[[mid_y, mid_x]] - ((top + bottom) / 2.)).abs() < resolution as f64);
+    assert!(equivalent(&grid.data()[[mid_y, mid_x, 0]], &nodata));
+    assert!((grid.x()[[mid_y, mid_x]] - ((right + left) / 2.)).abs() < resolution as f64);
+    assert!((grid.y()[[mid_y, mid_x]] - ((top + bottom) / 2.)).abs() < resolution as f64);
 }
 
 #[rstest]
@@ -48,14 +49,14 @@ fn test_properties(
     #[case] expected_width: usize,
 ) {
     let (left, bottom, right, top) = bounds;
-    let grid = Grid::empty_from_bounds(f64::NAN, left, bottom, right, top, resolution);
+    let grid = Grid::empty_from_bounds(bounds, resolution, f64::NAN);
 
-    assert_eq!(grid.width, expected_width);
-    assert_eq!(grid.height, expected_height);
+    assert_eq!(grid.width(), expected_width);
+    assert_eq!(grid.height(), expected_height);
     assert_eq!(grid.bounds(), (left, bottom, right, top));
 
-    assert_eq!(grid.world_width, right - left);
-    assert_eq!(grid.world_height, top - bottom);
+    assert_eq!(grid.world_width(), right - left);
+    assert_eq!(grid.world_height(), top - bottom);
 }
 #[rstest]
 #[case(STUB_BOUNDS, 1, [0., 0.].into(), [0., 0.].into())]
@@ -66,15 +67,14 @@ fn test_transform(
     #[case] test_point_screen: euclid::Point2D<f64, ScreenSpace>,
     #[case] test_point_world: euclid::Point2D<f64, WorldSpace>,
 ) {
-    let (left, bottom, right, top) = bounds;
-    let grid = Grid::empty_from_bounds(f64::NAN, left, bottom, right, top, resolution);
+    let grid = Grid::empty_from_bounds(bounds, resolution, f64::NAN);
 
-    let s_w_transform = grid.screen_to_world_transform;
+    let s_w_transform = grid.screen_to_world_transform();
 
     let sw_transformed_point = s_w_transform.transform_point(test_point_screen);
     assert_eq!(sw_transformed_point, test_point_world);
 
-    let w_s_transform = grid.world_to_screen_transform;
+    let w_s_transform = grid.world_to_screen_transform();
 
     let ws_transformed_point = w_s_transform.transform_point(test_point_world);
     assert_eq!(ws_transformed_point, test_point_screen);
@@ -98,8 +98,7 @@ fn test_rasterize_polygon(
     #[case] test_polygon: geo::Polygon<f64>,
     #[case] raster_label: f64,
 ) {
-    let (left, bottom, right, top) = bounds;
-    let mut grid = Grid::empty_from_bounds(f64::NAN, left, bottom, right, top, resolution);
+    let mut grid = Grid::empty_from_bounds(bounds, resolution, f64::NAN);
 
     grid.rasterize_polygons(&[test_polygon], &[raster_label]);
 

@@ -4,9 +4,8 @@ use std::env;
 
 #[test]
 fn test_draw_a_grid() {
-    let (left, bottom, right, top, resolution) = (0., 0., 500., 250., 1);
-    let mut grid = Grid::empty_from_bounds(f64::NAN, left, bottom, right, top, resolution);
-    grid.data
+    let mut grid = Grid::empty_from_bounds((0., 0., 500., 250.), 1, f64::NAN);
+    grid.data_mut()
         .indexed_iter_mut()
         .for_each(|((y, x, _), value)| *value = { x + y } as f64);
 
