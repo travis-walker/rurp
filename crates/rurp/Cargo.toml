@@ -1,0 +1,21 @@
+[package]
+name = "rurp"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+euclid = { workspace = true }
+geo = { workspace = true }
+geo-rasterize = { workspace = true }
+image = { workspace = true }
+ndarray = { workspace = true }
+rayon = { workspace = true }
+thiserror = { workspace = true }
+voronator = { workspace = true }
+
+[dev-dependencies]
+insta = { workspace = true }
+rand = { workspace = true }
+rstest = { workspace = true }
