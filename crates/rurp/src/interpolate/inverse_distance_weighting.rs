@@ -23,6 +23,6 @@ pub fn apply_inverse_distance_weighting(grid: &mut Grid, points: &[Point]) {
             let grid_point = geo::Point::new(*x, *y);
             *grid_value = points.iter().fold(0.0, |acc, point| {
                 acc + weighted_value(&point.into(), &grid_point, point.values[0], 1.)
-            })
+            });
         });
 }

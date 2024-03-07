@@ -4,7 +4,7 @@ use rurp::point::Point;
 
 #[rstest]
 #[case(0., 0., vec![1., 2., 3.])]
-#[case(90.1234567, -54.7654321, vec![f64::MAX; 9999])]
+#[case(90.123_456_7, -54.765_432_1, vec![f64::MAX; 9999])]
 fn test_new(#[case] x: f64, #[case] y: f64, #[case] values: Vec<f64>) {
     let point = Point::new(x, y, values.clone());
     assert_eq!(point.x, x);

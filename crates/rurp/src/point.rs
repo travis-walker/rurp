@@ -8,7 +8,7 @@ pub struct Point {
 }
 
 impl Point {
-    pub fn new(x: f64, y: f64, values: Vec<f64>) -> Self {
+    #[must_use] pub fn new(x: f64, y: f64, values: Vec<f64>) -> Self {
         Point {
             x,
             y,

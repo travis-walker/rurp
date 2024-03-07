@@ -23,7 +23,7 @@ pub struct Grid {
     nodata: f64,
 }
 impl Grid {
-    pub fn data(&self) -> ArrayView3<f64> {
+    #[must_use] pub fn data(&self) -> ArrayView3<f64> {
         self.data.view()
     }
 
@@ -31,49 +31,49 @@ impl Grid {
         self.data.view_mut()
     }
 
-    pub fn x(&self) -> ArrayView2<f64> {
+    #[must_use] pub fn x(&self) -> ArrayView2<f64> {
         self.x.view()
     }
 
-    pub fn y(&self) -> ArrayView2<f64> {
+    #[must_use] pub fn y(&self) -> ArrayView2<f64> {
         self.y.view()
     }
 
-    pub fn bounds(&self) -> Bounds {
+    #[must_use] pub fn bounds(&self) -> Bounds {
         self.bounds
     }
 
-    pub fn height(&self) -> usize {
+    #[must_use] pub fn height(&self) -> usize {
         self.height
     }
 
-    pub fn width(&self) -> usize {
+    #[must_use] pub fn width(&self) -> usize {
         self.width
     }
 
-    pub fn world_height(&self) -> f64 {
+    #[must_use] pub fn world_height(&self) -> f64 {
         self.world_height
     }
 
-    pub fn world_width(&self) -> f64 {
+    #[must_use] pub fn world_width(&self) -> f64 {
         self.world_width
     }
 
-    pub fn screen_to_world_transform(&self) -> Transform2D<f64, ScreenSpace, WorldSpace> {
+    #[must_use] pub fn screen_to_world_transform(&self) -> Transform2D<f64, ScreenSpace, WorldSpace> {
         self.screen_to_world_transform
     }
 
-    pub fn world_to_screen_transform(&self) -> Transform2D<f64, WorldSpace, ScreenSpace> {
+    #[must_use] pub fn world_to_screen_transform(&self) -> Transform2D<f64, WorldSpace, ScreenSpace> {
         self.world_to_screen_transform
     }
 
-    pub fn nodata(&self) -> f64 {
+    #[must_use] pub fn nodata(&self) -> f64 {
         self.nodata
     }
 }
 
 impl Grid {
-    pub fn empty_from_bounds(bounds: Bounds, resolution: usize, nodata: f64) -> Self {
+    #[must_use] pub fn empty_from_bounds(bounds: Bounds, resolution: usize, nodata: f64) -> Self {
         let (left, bottom, right, top) = bounds;
 
         let world_height = top - bottom;
@@ -95,19 +95,7 @@ impl Grid {
                 .then_scale(width as f64 / world_width, height as f64 / world_height);
         let screen_to_world_transform = world_to_screen_transform.inverse().unwrap();
 
-        Grid {
-            nodata,
-            data,
-            x,
-            y,
-            height,
-            width,
-            bounds,
-            world_width,
-            world_height,
-            screen_to_world_transform,
-            world_to_screen_transform,
-        }
+        Grid { data, x, y, bounds, height, width, world_height, world_width, world_to_screen_transform, screen_to_world_transform, nodata }
     }
 }
 
