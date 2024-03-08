@@ -14,6 +14,9 @@ pub fn equivalent(left: &f64, right: &f64) -> bool {
 pub fn normalize(value: &f64, src_domain: &(f64, f64), dst_domain: &(f64, f64)) -> f64 {
     let (src_min, src_max) = src_domain;
     let (dst_min, dst_max) = dst_domain;
+    if src_min == src_max {
+        return *dst_max;
+    }
     (value - src_min) * (dst_max - dst_min) / (src_max - src_min) + dst_min
 }
 
@@ -51,5 +54,13 @@ mod lib_tests {
         assert_eq!(normalize(&-4.0, &src_domain, &dst_domain), 100.0);
         assert_eq!(normalize(&-1.5, &src_domain, &dst_domain), 150.0);
         assert_eq!(normalize(&1.0, &src_domain, &dst_domain), 200.0);
+    }
+
+    #[test]
+    fn test_normalize_3() {
+        let src_domain = (-3.0, -3.0);
+        let dst_domain = (1.0, 65534.0);
+
+        assert_eq!(normalize(&-3.0, &src_domain, &dst_domain), 65534.0);
     }
 }
