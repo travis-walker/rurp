@@ -5,6 +5,7 @@ pub mod utils;
 use rurp::equivalent;
 use rurp::grid::Bounds;
 use utils::{CONUS_BOUNDS, STUB_BOUNDS};
+
 #[rstest]
 #[case(4000, 710, 1351, f64::NAN)]
 #[case(8000, 355, 676, f64::NEG_INFINITY)]

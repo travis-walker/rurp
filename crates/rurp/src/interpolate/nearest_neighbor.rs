@@ -1,3 +1,5 @@
+use std::error::Error;
+
 use crate::grid::Grid;
 use crate::point::Point;
 use geo::{LineString, Polygon};
@@ -25,14 +27,22 @@ fn voronoi_to_grid(
     grid.rasterize_polygons(&polygons, polygon_labels);
 }
 
-pub fn interpolate(grid: &mut Grid, points: &[Point]) {
+pub fn interpolate(grid: &mut Grid, points: &[Point]) -> Result<(), Box<dyn Error>> {
+    if points.is_empty() {
+        return Err("No points to interpolate".into());
+    }
+
     let (left, bottom, right, top) = grid.bounds();
 
     let voronoi_points: Vec<_> = points.par_iter().map(std::convert::Into::into).collect();
     let polygon_labels: Vec<_> = points.par_iter().map(|point| point.values[0]).collect();
 
-    let voronoi =
-        VoronoiDiagram::from_tuple(&(left, bottom), &(right, top), &voronoi_points).unwrap();
-
-    voronoi_to_grid(&voronoi, &polygon_labels, grid);
+    if let Some(voronoi) =
+        VoronoiDiagram::from_tuple(&(left, bottom), &(right, top), &voronoi_points)
+    {
+        voronoi_to_grid(&voronoi, &polygon_labels, grid);
+        Ok(())
+    } else {
+        Err("Error building voronoi diagram".into())
+    }
 }

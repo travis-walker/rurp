@@ -32,6 +32,6 @@ macro_rules! assert_grid_matches_snapshot {
             .unwrap()
             .join("tests/snapshots")
             .join(format!("{}.png", $id));
-        rurp::draw::write_grid_data(&$grid, file_path.to_str().unwrap());
+        rurp::draw::write_grid_data(&$grid, file_path.to_str().unwrap()).unwrap();
     };
 }

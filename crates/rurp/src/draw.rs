@@ -3,7 +3,7 @@ use image::ImageBuffer;
 
 use std::fs;
 
-pub fn write_grid_data(grid: &Grid, path: &str) {
+pub fn write_grid_data(grid: &Grid, path: &str) -> Result<(), Box<dyn std::error::Error>> {
     let height = grid.height();
     let width = grid.width();
     let grid_data = grid.data();
@@ -31,5 +31,6 @@ pub fn write_grid_data(grid: &Grid, path: &str) {
         image::Luma([pixel_value])
     });
     let _ = fs::remove_file(path);
-    img.save(path).unwrap();
+    img.save(path)?;
+    Ok(())
 }

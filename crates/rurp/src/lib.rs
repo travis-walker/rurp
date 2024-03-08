@@ -11,7 +11,7 @@ pub fn equivalent(left: &f64, right: &f64) -> bool {
 }
 
 #[must_use]
-pub fn normalize(value: &f64, src_domain: &(f64, f64), dst_domain: &(f64, f64)) -> f64 {
+pub(crate) fn normalize(value: &f64, src_domain: &(f64, f64), dst_domain: &(f64, f64)) -> f64 {
     let (src_min, src_max) = src_domain;
     let (dst_min, dst_max) = dst_domain;
     if src_min == src_max {

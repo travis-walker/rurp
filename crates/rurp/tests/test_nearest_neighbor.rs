@@ -18,7 +18,21 @@ fn test_interpolate(
     let mut grid = Grid::empty_from_bounds(bounds, resolution, f64::NAN);
     let points = build_stub_points(&bounds, &point_count);
 
-    interpolate(&mut grid, &points);
+    interpolate(&mut grid, &points).unwrap();
 
     assert_grid_matches_snapshot!(grid, format!("test_interpolate_nearest_{}", case_number));
+}
+
+#[rstest]
+fn test_error_on_empty_points() {
+    let mut grid = Grid::empty_from_bounds(STUB_BOUNDS, 1, f64::NAN);
+    let points = vec![];
+
+    let result = interpolate(&mut grid, &points);
+
+    assert!(result.is_err());
+    assert!(result
+        .unwrap_err()
+        .to_string()
+        .contains("No points to interpolate"));
 }
