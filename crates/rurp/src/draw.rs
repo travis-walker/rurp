@@ -19,11 +19,13 @@ pub fn write_grid_data(grid: &Grid, path: &str) {
             }
         });
 
-    let pixel_domain = (1.0, u16::MAX as f64 - 1.);
+    let pixel_domain = (1.0, f64::from(u16::MAX - 1));
 
     let img = ImageBuffer::from_fn(width as u32, height as u32, |x, y| {
-        let pixel_value = {
-            let cell_value = grid_data[[height - 1 - y as usize, x as usize, 0]];
+        let cell_value = grid_data[[height - 1 - y as usize, x as usize, 0]];
+        let pixel_value = if equivalent(&cell_value, &nodata) {
+            0
+        } else {
             normalize(&cell_value, &data_domain, &pixel_domain).round() as u16
         };
         image::Luma([pixel_value])
