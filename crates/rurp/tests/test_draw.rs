@@ -7,7 +7,7 @@ use std::env;
 #[rstest]
 fn test_draw_a_grid() {
     let bounds = Bounds::new(0., 0., 500., 250.).unwrap();
-    let mut grid = Grid::empty_from_bounds(&bounds, 1, f64::NAN);
+    let mut grid = Grid::empty_from_bounds(&bounds, 1, f64::NAN).unwrap();
     grid.data_mut()
         .indexed_iter_mut()
         .for_each(|((y, x, _), value)| *value = { x + y } as f64);
@@ -16,5 +16,5 @@ fn test_draw_a_grid() {
         .unwrap()
         .join("tests/snapshots")
         .join("test_plot_a_grid_1.png");
-    write_grid_data(&grid, file_path.to_str().unwrap()).expect("Failed to write grid data to file");
+    write_grid_data(&grid, file_path.to_str().unwrap()).unwrap();
 }

@@ -5,7 +5,7 @@ use rurp::bounds::Bounds;
 #[case(0., 1., 2., 3.)]
 #[case(-20_000., -30_000., 2_500., 600_000.)]
 fn test_new(#[case] left: f64, #[case] bottom: f64, #[case] right: f64, #[case] top: f64) {
-    let bounds = Bounds::new(left, bottom, right, top).unwrap();
+    let bounds = Bounds::new(left, bottom, right, top).expect("Failed to create bounds");
     assert_eq!(bounds.left(), left);
     assert_eq!(bounds.bottom(), bottom);
     assert_eq!(bounds.right(), right);

@@ -18,7 +18,7 @@ fn test_from_bounds(
 ) {
     let bounds = &*CONUS_BOUNDS;
 
-    let grid = Grid::empty_from_bounds(bounds, resolution, nodata);
+    let grid = Grid::empty_from_bounds(bounds, resolution, nodata).unwrap();
 
     let (left, bottom, right, top) = bounds.clone().into();
 
@@ -51,7 +51,7 @@ fn test_properties(
     #[case] expected_height: usize,
     #[case] expected_width: usize,
 ) {
-    let grid = Grid::empty_from_bounds(bounds, resolution, f64::NAN);
+    let grid = Grid::empty_from_bounds(bounds, resolution, f64::NAN).unwrap();
 
     assert_eq!(grid.width(), expected_width);
     assert_eq!(grid.height(), expected_height);
@@ -69,7 +69,7 @@ fn test_transform(
     #[case] test_point_screen: euclid::Point2D<f64, ScreenSpace>,
     #[case] test_point_world: euclid::Point2D<f64, WorldSpace>,
 ) {
-    let grid = Grid::empty_from_bounds(bounds, resolution, f64::NAN);
+    let grid = Grid::empty_from_bounds(bounds, resolution, f64::NAN).unwrap();
 
     let s_w_transform = grid.screen_to_world_transform();
 
@@ -100,9 +100,10 @@ fn test_rasterize_polygon(
     #[case] test_polygon: geo::Polygon<f64>,
     #[case] raster_label: f64,
 ) {
-    let mut grid = Grid::empty_from_bounds(bounds, resolution, f64::NAN);
+    let mut grid = Grid::empty_from_bounds(bounds, resolution, f64::NAN).unwrap();
 
-    grid.rasterize_polygons(&[test_polygon], &[raster_label]);
+    grid.rasterize_polygons(&[test_polygon], &[raster_label])
+        .unwrap();
 
     assert_grid_matches_snapshot!(grid, format!("test_rasterize_polygon_{}", case_number));
 }

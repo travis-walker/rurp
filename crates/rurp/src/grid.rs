@@ -5,6 +5,7 @@ use euclid::Transform2D;
 use geo::Polygon;
 use geo_rasterize::{LabelBuilder, Rasterizer};
 use ndarray::{prelude::*, ArrayViewMut3};
+
 pub struct WorldSpace;
 pub struct ScreenSpace;
 
@@ -97,8 +98,14 @@ impl Grid {
 
 impl Grid {
     /// Create a new empty Grid instance with given bounds, resolution, and nodata value.
-    #[must_use]
-    pub fn empty_from_bounds(bounds: &Bounds, resolution: usize, nodata: f64) -> Self {
+    ///
+    /// # Errors
+    /// Returns an error if the grid cannot be created.
+    pub fn empty_from_bounds(
+        bounds: &Bounds,
+        resolution: usize,
+        nodata: f64,
+    ) -> Result<Self, Box<dyn Error>> {
         let (left, bottom, right, top) = bounds.clone().into();
 
         let world_height = top - bottom;
@@ -118,9 +125,11 @@ impl Grid {
         let world_to_screen_transform: Transform2D<f64, WorldSpace, ScreenSpace> =
             Transform2D::translation(-left, -bottom)
                 .then_scale(width as f64 / world_width, height as f64 / world_height);
-        let screen_to_world_transform = world_to_screen_transform.inverse().unwrap();
+        let screen_to_world_transform = world_to_screen_transform
+            .inverse()
+            .ok_or("Error creating screen to world transform".to_string())?;
 
-        Grid {
+        Ok(Grid {
             data,
             x,
             y,
@@ -132,7 +141,7 @@ impl Grid {
             world_to_screen_transform,
             screen_to_world_transform,
             nodata,
-        }
+        })
     }
 }
 

@@ -10,7 +10,7 @@ fn voronoi_to_grid(
     voronoi: &VoronoiDiagram<delaunator::Point>,
     polygon_labels: &[f64],
     grid: &mut Grid,
-) {
+) -> Result<(), Box<dyn Error>> {
     let polygons = voronoi
         .cells()
         .par_iter()
@@ -24,7 +24,7 @@ fn voronoi_to_grid(
         })
         .collect::<Vec<Polygon>>();
 
-    grid.rasterize_polygons(&polygons, polygon_labels);
+    grid.rasterize_polygons(&polygons, polygon_labels)
 }
 
 /// Interpolates to the grid using the Nearest Neighbor method.
@@ -44,7 +44,7 @@ pub fn interpolate(grid: &mut Grid, points: &[Point]) -> Result<(), Box<dyn Erro
     if let Some(voronoi) =
         VoronoiDiagram::from_tuple(&(left, bottom), &(right, top), &voronoi_points)
     {
-        voronoi_to_grid(&voronoi, &polygon_labels, grid);
+        voronoi_to_grid(&voronoi, &polygon_labels, grid)?;
         Ok(())
     } else {
         Err("Error building voronoi diagram".into())

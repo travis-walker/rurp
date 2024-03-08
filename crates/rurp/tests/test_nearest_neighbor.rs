@@ -15,7 +15,7 @@ fn test_interpolate(
     #[case] resolution: usize,
     #[case] point_count: usize,
 ) {
-    let mut grid = Grid::empty_from_bounds(bounds, resolution, f64::NAN);
+    let mut grid = Grid::empty_from_bounds(bounds, resolution, f64::NAN).unwrap();
     let points = build_stub_points(bounds, &point_count);
 
     interpolate(&mut grid, &points).unwrap();
@@ -25,7 +25,7 @@ fn test_interpolate(
 
 #[rstest]
 fn test_error_on_empty_points() {
-    let mut grid = Grid::empty_from_bounds(&STUB_BOUNDS, 1, f64::NAN);
+    let mut grid = Grid::empty_from_bounds(&STUB_BOUNDS, 1, f64::NAN).unwrap();
     let points = vec![];
 
     let result = interpolate(&mut grid, &points);

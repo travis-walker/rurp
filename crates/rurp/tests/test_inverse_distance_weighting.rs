@@ -16,7 +16,7 @@ fn test_interpolate(
     #[case] resolution: usize,
     #[case] point_count: usize,
 ) {
-    let mut grid = Grid::empty_from_bounds(bounds, resolution, f64::NAN);
+    let mut grid = Grid::empty_from_bounds(bounds, resolution, f64::NAN).unwrap();
     let points = build_stub_points(bounds, &point_count);
 
     interpolate(&mut grid, &points);
