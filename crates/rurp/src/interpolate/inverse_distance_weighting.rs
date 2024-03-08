@@ -11,6 +11,7 @@ fn weighted_value(point_a: &geo::Point, point_b: &geo::Point, z: f64, power: f64
     z / distance.powf(power)
 }
 
+/// Interpolates to the grid using the Inverse Distance Weighting method.
 pub fn interpolate(grid: &mut Grid, points: &[Point]) {
     let x = grid.x().to_owned();
     let y = grid.y().to_owned();

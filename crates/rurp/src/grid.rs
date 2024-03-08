@@ -21,60 +21,72 @@ pub struct Grid {
     nodata: f64,
 }
 impl Grid {
+    /// Get a view of grid data.
     #[must_use]
     pub fn data(&self) -> ArrayView3<f64> {
         self.data.view()
     }
 
+    /// Get a mutable view of grid data.
     pub fn data_mut(&mut self) -> ArrayViewMut3<f64> {
         self.data.view_mut()
     }
 
+    /// Get a view of x values.
     #[must_use]
     pub fn x(&self) -> ArrayView2<f64> {
         self.x.view()
     }
 
+    /// Get a view of y values.
     #[must_use]
     pub fn y(&self) -> ArrayView2<f64> {
         self.y.view()
     }
 
+    /// Get the bounds of the grid.
     #[must_use]
     pub fn bounds(&self) -> Bounds {
         self.bounds.clone()
     }
 
+    /// Get the height of the grid.
     #[must_use]
     pub fn height(&self) -> usize {
         self.height
     }
 
+    /// Get the width of the grid.
     #[must_use]
     pub fn width(&self) -> usize {
         self.width
     }
 
+    /// Get the height of the grid in world units.
     #[must_use]
     pub fn world_height(&self) -> f64 {
         self.world_height
     }
 
+    /// Get the width of the grid in world units.
     #[must_use]
     pub fn world_width(&self) -> f64 {
         self.world_width
     }
 
+    /// Get the transformation from world space to screen space.s
     #[must_use]
     pub fn screen_to_world_transform(&self) -> Transform2D<f64, ScreenSpace, WorldSpace> {
         self.screen_to_world_transform
     }
 
+    /// Get the transformation from screen space to world space.
     #[must_use]
     pub fn world_to_screen_transform(&self) -> Transform2D<f64, WorldSpace, ScreenSpace> {
         self.world_to_screen_transform
     }
 
+    /// Get the nodata value.
     #[must_use]
     pub fn nodata(&self) -> f64 {
         self.nodata
@@ -82,6 +94,7 @@ impl Grid {
 }
 
 impl Grid {
+    /// Create a new empty Grid instance with given bounds, resolution, and nodata value.
     #[must_use]
     pub fn empty_from_bounds(bounds: &Bounds, resolution: usize, nodata: f64) -> Self {
         let (left, bottom, right, top) = bounds.clone().into();
@@ -132,6 +145,7 @@ impl Grid {
             .unwrap()
     }
 
+    /// Rasterize polygons onto the grid.
     pub fn rasterize_polygons(&mut self, polygons: &[Polygon<f64>], polygon_labels: &[f64]) {
         let mut rasterizer = self.build_default_rasterizer();
 

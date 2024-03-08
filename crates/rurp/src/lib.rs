@@ -6,11 +6,18 @@ pub mod grid;
 pub mod interpolate;
 pub mod point;
 
+/// Test if two f64s are equivalent.
+///
+/// Values are equivalent if they are within `f64::EPSILON` of each other.
+/// This function also considers `f64::NAN == f64::NAN`, `f64::INFINITY == f64::INFINITY`, and `f64::NEG_INFINITY == f64::NEG_INFINITY`.
 #[must_use]
 pub fn equivalent(left: &f64, right: &f64) -> bool {
     left.approx_eq(right) || left.is_nan() && right.is_nan() || left == right
 }
 
+/// Normalize a value from one domain to another.
+///
+/// If src min == src max, the dst max is returned.
 #[must_use]
 pub(crate) fn normalize(value: f64, src_domain: &(f64, f64), dst_domain: &(f64, f64)) -> f64 {
     let (src_min, src_max) = src_domain;

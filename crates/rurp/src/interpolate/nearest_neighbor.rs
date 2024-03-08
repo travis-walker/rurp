@@ -27,6 +27,10 @@ fn voronoi_to_grid(
     grid.rasterize_polygons(&polygons, polygon_labels);
 }
 
+/// Interpolates to the grid using the Nearest Neighbor method.
+///
+/// # Errors
+/// Returns an error if there are no points to interpolate.
 pub fn interpolate(grid: &mut Grid, points: &[Point]) -> Result<(), Box<dyn Error>> {
     if points.is_empty() {
         return Err("No points to interpolate".into());

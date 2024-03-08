@@ -7,9 +7,3 @@ pub enum InterpolationMethod {
     // Kriging,
     // NaturalNeighbor,
 }
-
-#[derive(thiserror::Error, Debug)]
-pub enum InterpolationError {
-    #[error("point is outside grid")]
-    PointOutsideGrid,
-}
