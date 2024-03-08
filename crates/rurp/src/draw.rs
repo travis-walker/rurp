@@ -1,4 +1,4 @@
-use crate::grid::Grid;
+use crate::{equivalent, grid::Grid, normalize};
 use image::ImageBuffer;
 
 use std::fs;
@@ -7,21 +7,24 @@ pub fn write_grid_data(grid: &Grid, path: &str) {
     let height = grid.height();
     let width = grid.width();
     let grid_data = grid.data();
+    let nodata = grid.nodata();
 
-    let domain_max = grid_data
+    let data_domain = grid_data
         .iter()
-        .filter(|v| v.is_finite())
-        .max_by(|l, r| l.total_cmp(r))
-        .unwrap();
+        .fold((f64::INFINITY, f64::NEG_INFINITY), |acc, &v| {
+            if equivalent(&v, &nodata) {
+                acc
+            } else {
+                (acc.0.min(v), acc.1.max(v))
+            }
+        });
+
+    let pixel_domain = (1.0, u16::MAX as f64 - 1.);
 
     let img = ImageBuffer::from_fn(width as u32, height as u32, |x, y| {
         let pixel_value = {
             let cell_value = grid_data[[height - 1 - y as usize, x as usize, 0]];
-            if cell_value.is_finite() {
-                255 - (cell_value / domain_max * 255.) as u8
-            } else {
-                255
-            }
+            normalize(&cell_value, &data_domain, &pixel_domain).round() as u16
         };
         image::Luma([pixel_value])
     });

@@ -1,8 +1,9 @@
+use rstest::rstest;
 use rurp::draw::write_grid_data;
 use rurp::grid::Grid;
 use std::env;
 
-#[test]
+#[rstest]
 fn test_draw_a_grid() {
     let mut grid = Grid::empty_from_bounds((0., 0., 500., 250.), 1, f64::NAN);
     grid.data_mut()

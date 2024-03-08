@@ -1,4 +1,3 @@
-use euclid::approxeq::ApproxEq;
 use rand::{distributions::Uniform, rngs::StdRng, Rng, SeedableRng};
 use rurp::grid::Bounds;
 use rurp::point::Point;
@@ -7,11 +6,8 @@ pub const STUB_BOUNDS: Bounds = (0., 0., 10., 10.);
 
 pub const CONUS_BOUNDS: Bounds = (-2_221_060., 523_589., 3_181_702., 3_363_319.);
 
-#[must_use] pub fn equivalent(left: &f64, right: &f64) -> bool {
-    left == right || left.is_nan() && right.is_nan() || left.approx_eq(right)
-}
-
-#[must_use] pub fn build_stub_points(bounds: &Bounds, point_count: &usize) -> Vec<Point> {
+#[must_use]
+pub fn build_stub_points(bounds: &Bounds, point_count: &usize) -> Vec<Point> {
     let mut rng = StdRng::seed_from_u64(43691);
 
     let (left, bottom, right, top) = bounds;

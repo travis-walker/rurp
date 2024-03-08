@@ -2,9 +2,9 @@ use geo::{coord, polygon};
 use rstest::rstest;
 use rurp::grid::{Grid, ScreenSpace, WorldSpace};
 pub mod utils;
+use rurp::equivalent;
 use rurp::grid::Bounds;
-use utils::{equivalent, CONUS_BOUNDS, STUB_BOUNDS};
-
+use utils::{CONUS_BOUNDS, STUB_BOUNDS};
 #[rstest]
 #[case(4000, 710, 1351, f64::NAN)]
 #[case(8000, 355, 676, f64::NEG_INFINITY)]

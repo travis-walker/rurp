@@ -25,7 +25,7 @@ fn voronoi_to_grid(
     grid.rasterize_polygons(&polygons, polygon_labels);
 }
 
-pub fn apply_nearest_neighbor_interpolation(grid: &mut Grid, points: &[Point]) {
+pub fn interpolate(grid: &mut Grid, points: &[Point]) {
     let (left, bottom, right, top) = grid.bounds();
 
     let voronoi_points: Vec<_> = points.par_iter().map(std::convert::Into::into).collect();
