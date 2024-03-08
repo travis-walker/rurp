@@ -19,3 +19,4 @@ voronator = { workspace = true }
 insta = { workspace = true }
 rand = { workspace = true }
 rstest = { workspace = true }
+pre-commit-hooks = { workspace = true }
