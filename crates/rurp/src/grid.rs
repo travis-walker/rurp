@@ -1,3 +1,5 @@
+use std::error::Error;
+
 use crate::bounds::Bounds;
 use euclid::Transform2D;
 use geo::Polygon;
@@ -135,30 +137,37 @@ impl Grid {
 }
 
 impl Grid {
-    fn build_default_rasterizer(&self) -> Rasterizer<f64> {
+    fn build_default_rasterizer(&self) -> Result<Rasterizer<f64>, geo_rasterize::RasterizeError> {
         let geo_pix_transform = self.world_to_screen_transform.to_untyped();
         LabelBuilder::background(self.nodata)
             .width(self.width)
             .height(self.height)
             .geo_to_pix(geo_pix_transform)
             .build()
-            .unwrap()
     }
 
     /// Rasterize polygons onto the grid.
-    pub fn rasterize_polygons(&mut self, polygons: &[Polygon<f64>], polygon_labels: &[f64]) {
-        let mut rasterizer = self.build_default_rasterizer();
+    /// The polygons are assumed to be in world space.
+    ///
+    /// # Errors
+    /// Returns an error if the rasterization fails.
+    pub fn rasterize_polygons(
+        &mut self,
+        polygons: &[Polygon<f64>],
+        polygon_labels: &[f64],
+    ) -> Result<(), Box<dyn Error>> {
+        let mut rasterizer = self.build_default_rasterizer()?;
 
-        polygons
-            .iter()
-            .zip(polygon_labels)
-            .for_each(|(polygon, polygon_label)| {
-                rasterizer.rasterize(polygon, *polygon_label).unwrap();
-            });
+        polygons.iter().zip(polygon_labels).try_for_each(
+            |(polygon, polygon_label)| -> Result<(), geo_rasterize::RasterizeError> {
+                rasterizer.rasterize(polygon, *polygon_label)?;
+                Ok(())
+            },
+        )?;
 
         self.data = rasterizer
             .finish()
-            .into_shape((self.height, self.width, 1))
-            .unwrap();
+            .into_shape((self.height, self.width, 1))?;
+        Ok(())
     }
 }
