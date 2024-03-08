@@ -1,12 +1,10 @@
+use crate::bounds::Bounds;
 use euclid::Transform2D;
 use geo::Polygon;
 use geo_rasterize::{LabelBuilder, Rasterizer};
 use ndarray::{prelude::*, ArrayViewMut3};
-
 pub struct WorldSpace;
 pub struct ScreenSpace;
-
-pub type Bounds = (f64, f64, f64, f64);
 
 #[derive(Debug)]
 pub struct Grid {
@@ -44,7 +42,7 @@ impl Grid {
 
     #[must_use]
     pub fn bounds(&self) -> Bounds {
-        self.bounds
+        self.bounds.clone()
     }
 
     #[must_use]
@@ -85,8 +83,8 @@ impl Grid {
 
 impl Grid {
     #[must_use]
-    pub fn empty_from_bounds(bounds: Bounds, resolution: usize, nodata: f64) -> Self {
-        let (left, bottom, right, top) = bounds;
+    pub fn empty_from_bounds(bounds: &Bounds, resolution: usize, nodata: f64) -> Self {
+        let (left, bottom, right, top) = bounds.clone().into();
 
         let world_height = top - bottom;
         let world_width = right - left;
@@ -111,7 +109,7 @@ impl Grid {
             data,
             x,
             y,
-            bounds,
+            bounds: bounds.clone(),
             height,
             width,
             world_height,

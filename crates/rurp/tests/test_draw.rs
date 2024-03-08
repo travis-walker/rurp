@@ -1,11 +1,13 @@
 use rstest::rstest;
+use rurp::bounds::Bounds;
 use rurp::draw::write_grid_data;
 use rurp::grid::Grid;
 use std::env;
 
 #[rstest]
 fn test_draw_a_grid() {
-    let mut grid = Grid::empty_from_bounds((0., 0., 500., 250.), 1, f64::NAN);
+    let bounds = Bounds::new(0., 0., 500., 250.).unwrap();
+    let mut grid = Grid::empty_from_bounds(&bounds, 1, f64::NAN);
     grid.data_mut()
         .indexed_iter_mut()
         .for_each(|((y, x, _), value)| *value = { x + y } as f64);

@@ -966,6 +966,7 @@ dependencies = [
  "image",
  "insta",
  "ndarray",
+ "once_cell",
  "pre-commit-hooks",
  "rand",
  "rayon",

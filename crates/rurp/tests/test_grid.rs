@@ -1,9 +1,9 @@
 use geo::{coord, polygon};
 use rstest::rstest;
+use rurp::bounds::Bounds;
+use rurp::equivalent;
 use rurp::grid::{Grid, ScreenSpace, WorldSpace};
 pub mod utils;
-use rurp::equivalent;
-use rurp::grid::Bounds;
 use utils::{CONUS_BOUNDS, STUB_BOUNDS};
 
 #[rstest]
@@ -16,9 +16,11 @@ fn test_from_bounds(
     #[case] expected_width: usize,
     #[case] nodata: f64,
 ) {
-    let grid = Grid::empty_from_bounds(CONUS_BOUNDS, resolution, nodata);
+    let bounds = &*CONUS_BOUNDS;
 
-    let (left, bottom, right, top) = CONUS_BOUNDS;
+    let grid = Grid::empty_from_bounds(bounds, resolution, nodata);
+
+    let (left, bottom, right, top) = bounds.clone().into();
 
     assert_eq!(grid.width(), expected_width);
     assert_eq!(grid.height(), expected_height);
@@ -41,29 +43,28 @@ fn test_from_bounds(
 }
 
 #[rstest]
-#[case(STUB_BOUNDS, 1, 10, 10)]
-#[case(CONUS_BOUNDS, 8000, 355, 676)]
+#[case(&*STUB_BOUNDS, 1, 10, 10)]
+#[case(&*CONUS_BOUNDS, 8000, 355, 676)]
 fn test_properties(
-    #[case] bounds: Bounds,
+    #[case] bounds: &Bounds,
     #[case] resolution: usize,
     #[case] expected_height: usize,
     #[case] expected_width: usize,
 ) {
-    let (left, bottom, right, top) = bounds;
     let grid = Grid::empty_from_bounds(bounds, resolution, f64::NAN);
 
     assert_eq!(grid.width(), expected_width);
     assert_eq!(grid.height(), expected_height);
-    assert_eq!(grid.bounds(), (left, bottom, right, top));
+    assert_eq!(&grid.bounds(), bounds);
 
-    assert_eq!(grid.world_width(), right - left);
-    assert_eq!(grid.world_height(), top - bottom);
+    assert_eq!(grid.world_width(), bounds.right() - bounds.left());
+    assert_eq!(grid.world_height(), bounds.top() - bounds.bottom());
 }
 #[rstest]
-#[case(STUB_BOUNDS, 1, [0., 0.].into(), [0., 0.].into())]
-#[case(CONUS_BOUNDS, 8000, [0., 0.].into(), [-2_221_060., 523_589.].into())]
+#[case(&*STUB_BOUNDS, 1, [0., 0.].into(), [0., 0.].into())]
+#[case(&*CONUS_BOUNDS, 8000, [0., 0.].into(), [-2_221_060., 523_589.].into())]
 fn test_transform(
-    #[case] bounds: Bounds,
+    #[case] bounds: &Bounds,
     #[case] resolution: usize,
     #[case] test_point_screen: euclid::Point2D<f64, ScreenSpace>,
     #[case] test_point_world: euclid::Point2D<f64, WorldSpace>,
@@ -82,8 +83,8 @@ fn test_transform(
 }
 
 #[rstest]
-#[case(1, STUB_BOUNDS, 1, polygon![(x: 2., y: 2.), (x: 7., y: 2.), (x: 7., y: 7.), (x: 2., y: 7.), (x: 2., y: 2.)],  -3.0)]
-#[case(2, CONUS_BOUNDS, 2000, polygon![
+#[case(1, &*STUB_BOUNDS, 1, polygon![(x: 2., y: 2.), (x: 7., y: 2.), (x: 7., y: 7.), (x: 2., y: 7.), (x: 2., y: 2.)],  -3.0)]
+#[case(2, &*CONUS_BOUNDS, 2000, polygon![
             coord! {x: -1_951_222.716_269_676_6, y: 2_354_912.258_633_185},
             coord! {x: -2_041_264.291_279_755_5, y: 2_023_308.620_816_362_3},
             coord! {x: -1_678_141.122_611_409_3, y: 1_486_297.116_022_01},
@@ -94,7 +95,7 @@ fn test_transform(
         ], 50.12345)]
 fn test_rasterize_polygon(
     #[case] case_number: usize,
-    #[case] bounds: Bounds,
+    #[case] bounds: &Bounds,
     #[case] resolution: usize,
     #[case] test_polygon: geo::Polygon<f64>,
     #[case] raster_label: f64,

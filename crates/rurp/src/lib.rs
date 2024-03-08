@@ -1,5 +1,6 @@
 use euclid::approxeq::ApproxEq;
 
+pub mod bounds;
 pub mod draw;
 pub mod grid;
 pub mod interpolate;

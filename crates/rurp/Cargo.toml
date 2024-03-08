@@ -11,12 +11,13 @@ geo = { workspace = true }
 geo-rasterize = { workspace = true }
 image = { workspace = true }
 ndarray = { workspace = true }
+once_cell = { workspace = true }
 rayon = { workspace = true }
 thiserror = { workspace = true }
 voronator = { workspace = true }
 
 [dev-dependencies]
 insta = { workspace = true }
+pre-commit-hooks = { workspace = true }
 rand = { workspace = true }
 rstest = { workspace = true }
-pre-commit-hooks = { workspace = true }
