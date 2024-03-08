@@ -4,7 +4,7 @@ name: Continuous integration
 
 jobs:
   fmt:
-    name: Rustfmt
+    name: Format
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -33,10 +33,10 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: clippy
-          args: -r --workspace -- -D warnings
+          args: --workspace -- -D warnings
 
   test:
-    name: Test Suite
+    name: Test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
