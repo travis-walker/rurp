@@ -12,7 +12,7 @@ pub fn equivalent(left: &f64, right: &f64) -> bool {
 }
 
 #[must_use]
-pub(crate) fn normalize(value: &f64, src_domain: &(f64, f64), dst_domain: &(f64, f64)) -> f64 {
+pub(crate) fn normalize(value: f64, src_domain: &(f64, f64), dst_domain: &(f64, f64)) -> f64 {
     let (src_min, src_max) = src_domain;
     let (dst_min, dst_max) = dst_domain;
     if src_min == src_max {
@@ -42,9 +42,9 @@ mod lib_tests {
         let src_domain = (0.0, 1.0);
         let dst_domain = (0.0, 100.0);
 
-        assert_eq!(normalize(&0.0, &src_domain, &dst_domain), 0.0);
-        assert_eq!(normalize(&1.0, &src_domain, &dst_domain), 100.0);
-        assert_eq!(normalize(&0.5, &src_domain, &dst_domain), 50.0);
+        assert_eq!(normalize(0.0, &src_domain, &dst_domain), 0.0);
+        assert_eq!(normalize(1.0, &src_domain, &dst_domain), 100.0);
+        assert_eq!(normalize(0.5, &src_domain, &dst_domain), 50.0);
     }
 
     #[test]
@@ -52,9 +52,9 @@ mod lib_tests {
         let src_domain = (-4.0, 1.0);
         let dst_domain = (100.0, 200.0);
 
-        assert_eq!(normalize(&-4.0, &src_domain, &dst_domain), 100.0);
-        assert_eq!(normalize(&-1.5, &src_domain, &dst_domain), 150.0);
-        assert_eq!(normalize(&1.0, &src_domain, &dst_domain), 200.0);
+        assert_eq!(normalize(-4.0, &src_domain, &dst_domain), 100.0);
+        assert_eq!(normalize(-1.5, &src_domain, &dst_domain), 150.0);
+        assert_eq!(normalize(1.0, &src_domain, &dst_domain), 200.0);
     }
 
     #[test]
@@ -62,6 +62,6 @@ mod lib_tests {
         let src_domain = (-3.0, -3.0);
         let dst_domain = (1.0, 65534.0);
 
-        assert_eq!(normalize(&-3.0, &src_domain, &dst_domain), 65534.0);
+        assert_eq!(normalize(-3.0, &src_domain, &dst_domain), 65534.0);
     }
 }

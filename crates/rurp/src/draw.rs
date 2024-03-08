@@ -26,7 +26,7 @@ pub fn write_grid_data(grid: &Grid, path: &str) -> Result<(), Box<dyn std::error
         let pixel_value = if equivalent(&cell_value, &nodata) {
             0
         } else {
-            normalize(&cell_value, &data_domain, &pixel_domain).round() as u16
+            normalize(cell_value, &data_domain, &pixel_domain).round() as u16
         };
         image::Luma([pixel_value])
     });
