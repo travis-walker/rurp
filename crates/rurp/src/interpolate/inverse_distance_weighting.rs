@@ -3,16 +3,16 @@ use crate::point::Point;
 use geo::EuclideanDistance;
 use rayon::prelude::*;
 
-fn weighted_value(point_a: &geo::Point, point_b: &geo::Point, z: f64, power: f64) -> f64 {
+fn calculate_weight(point_a: &geo::Point, point_b: &geo::Point, power: f64) -> f64 {
     let distance = point_a.euclidean_distance(point_b);
     if distance == 0.0 {
-        return z;
+        return 1.;
     }
-    z / distance.powf(power)
+    distance.powf(-power)
 }
 
 /// Interpolates to the grid using the Inverse Distance Weighting method.
-pub fn interpolate(grid: &mut Grid, points: &[Point]) {
+pub fn interpolate(grid: &mut Grid, points: &[Point], power: f64) {
     let x = grid.x().to_owned();
     let y = grid.y().to_owned();
 
@@ -22,8 +22,16 @@ pub fn interpolate(grid: &mut Grid, points: &[Point]) {
         .par_bridge()
         .for_each(|(grid_value, (x, y))| {
             let grid_point = geo::Point::new(*x, *y);
-            *grid_value = points.iter().fold(0.0, |acc, point| {
-                acc + weighted_value(&point.into(), &grid_point, point.values[0], 1.)
-            });
+            let weights: Vec<_> = points
+                .iter()
+                .map(|point| calculate_weight(&point.into(), &grid_point, power))
+                .collect();
+            let weights_total: f64 = weights.iter().sum();
+            *grid_value = points
+                .iter()
+                .zip(weights.iter())
+                .fold(0., |acc, (point, weight)| {
+                    acc + point.values[0] * weight / weights_total
+                });
         });
 }

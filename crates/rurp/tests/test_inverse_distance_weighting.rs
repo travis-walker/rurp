@@ -6,20 +6,25 @@ pub mod utils;
 use utils::{build_stub_points, CONUS_BOUNDS, STUB_BOUNDS};
 
 #[rstest]
-#[case(1, &*STUB_BOUNDS, 1, 10)]
-#[case(2, &*CONUS_BOUNDS, 16000, 10000)]
+#[case(1, &*STUB_BOUNDS, 1, 10, 1.)]
+#[case(2, &*CONUS_BOUNDS, 16000, 10000, 1.)]
+#[case(3, &*STUB_BOUNDS, 1, 10, 2.)]
+#[case(4, &*CONUS_BOUNDS, 16000, 10000, 2.)]
+#[case(5, &*STUB_BOUNDS, 1, 10, 10.)]
+#[case(6, &*CONUS_BOUNDS, 16000, 10000, 10.)]
 #[ignore = "slow"]
-#[case(3, &*CONUS_BOUNDS, 4000, 50000)]
+#[case(7, &*CONUS_BOUNDS, 4000, 50000, 1.)]
 fn test_interpolate(
     #[case] case_number: usize,
     #[case] bounds: &Bounds,
     #[case] resolution: usize,
     #[case] point_count: usize,
+    #[case] power: f64,
 ) {
     let mut grid = Grid::empty_from_bounds(bounds, resolution, f64::NAN).unwrap();
     let points = build_stub_points(bounds, &point_count);
 
-    interpolate(&mut grid, &points);
+    interpolate(&mut grid, &points, power);
 
     assert_grid_matches_snapshot!(grid, format!("test_interpolate_idw_{}", case_number));
 }

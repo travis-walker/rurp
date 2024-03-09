@@ -1,12 +1,12 @@
 use crate::{equivalent, grid::Grid, normalize};
 use image::ImageBuffer;
 
-use std::fs;
+use std::{error::Error, fs};
 
 /// Write grid data to an image file.
 /// # Errors
 /// Returns an error if the image file cannot be written.
-pub fn write_grid_data(grid: &Grid, path: &str) -> Result<(), Box<dyn std::error::Error>> {
+pub fn write_grid_data(grid: &Grid, path: &str) -> Result<(), Box<dyn Error>> {
     let height = grid.height();
     let width = grid.width();
     let grid_data = grid.data();
