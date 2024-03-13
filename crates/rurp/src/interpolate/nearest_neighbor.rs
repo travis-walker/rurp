@@ -4,6 +4,7 @@ use crate::grid::Grid;
 use crate::point::Point;
 use geo::{LineString, Polygon};
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
+use std::convert::Into;
 use voronator::{delaunator, VoronoiDiagram};
 
 fn voronoi_to_grid(
@@ -36,11 +37,10 @@ pub fn interpolate(grid: &mut Grid, points: &[Point]) -> Result<(), Box<dyn Erro
         return Err("No points to interpolate".into());
     }
 
-    let (left, bottom, right, top) = grid.bounds().into();
-
-    let voronoi_points: Vec<_> = points.par_iter().map(std::convert::Into::into).collect();
+    let voronoi_points: Vec<_> = points.par_iter().map(Into::into).collect();
     let polygon_labels: Vec<_> = points.par_iter().map(|point| point.values[0]).collect();
 
+    let (left, bottom, right, top) = grid.bounds().into();
     if let Some(voronoi) =
         VoronoiDiagram::from_tuple(&(left, bottom), &(right, top), &voronoi_points)
     {
