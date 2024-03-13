@@ -43,7 +43,7 @@ fn test_from_bounds(
 }
 
 #[rstest]
-#[case(&*STUB_BOUNDS, 1, 10, 10)]
+#[case(&*STUB_BOUNDS, 1, 100, 100)]
 #[case(&*CONUS_BOUNDS, 8000, 355, 676)]
 fn test_properties(
     #[case] bounds: &Bounds,
@@ -106,4 +106,27 @@ fn test_rasterize_polygon(
         .unwrap();
 
     assert_grid_matches_snapshot!(grid, format!("test_rasterize_polygon_{}", case_number));
+}
+
+#[rstest]
+#[case(&*STUB_BOUNDS, 1)]
+#[case(&*CONUS_BOUNDS, 8000)]
+fn test_iter_word_mut(#[case] bounds: &Bounds, #[case] resolution: usize) {
+    let mut grid = Grid::empty_from_bounds(bounds, resolution, f64::NAN).unwrap();
+    let x = grid.x().to_owned();
+    let y = grid.y().to_owned();
+    grid.data_mut()
+        .indexed_iter_mut()
+        .for_each(|((y, x, z), grid_value)| *grid_value = (y + x + z) as f64);
+    let data = grid.data().to_owned();
+
+    let expected_iter = x.into_iter().zip(y.into_iter()).zip(data.into_iter());
+
+    for ((x, y, data), ((expected_x, expected_y), expected_data)) in
+        grid.iter_world_mut().zip(expected_iter)
+    {
+        assert_eq!(x, expected_x);
+        assert_eq!(y, expected_y);
+        assert_eq!(*data, expected_data);
+    }
 }

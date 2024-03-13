@@ -180,3 +180,14 @@ impl Grid {
         Ok(())
     }
 }
+
+impl Grid {
+    /// Get an iterator over the world space coordinates and data values.
+    pub fn iter_world_mut(&mut self) -> impl Iterator<Item = (f64, f64, &mut f64)> {
+        self.x
+            .iter()
+            .zip(self.y.iter())
+            .zip(self.data.iter_mut())
+            .map(|((x, y), data)| (*x, *y, data))
+    }
+}

@@ -10,6 +10,7 @@ euclid = { workspace = true }
 geo = { workspace = true }
 geo-rasterize = { workspace = true }
 image = { workspace = true }
+kiddo = { workspace = true }
 ndarray = { workspace = true }
 once_cell = { workspace = true }
 rayon = { workspace = true }

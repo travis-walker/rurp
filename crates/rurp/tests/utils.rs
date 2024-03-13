@@ -3,7 +3,7 @@ use rand::{distributions::Uniform, rngs::StdRng, Rng, SeedableRng};
 use rurp::bounds::Bounds;
 use rurp::point::Point;
 
-pub static STUB_BOUNDS: Lazy<Bounds> = Lazy::new(|| Bounds::new(0., 0., 10., 10.).unwrap());
+pub static STUB_BOUNDS: Lazy<Bounds> = Lazy::new(|| Bounds::new(0., 0., 100., 100.).unwrap());
 
 pub static CONUS_BOUNDS: Lazy<Bounds> =
     Lazy::new(|| Bounds::new(-2_221_060., 523_589., 3_181_702., 3_363_319.).unwrap());

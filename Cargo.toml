@@ -6,20 +6,21 @@ resolver = "2"
 edition = "2021"
 
 [workspace.dependencies]
-euclid = "0.22.9"
-geo = "0.28.0"
-geo-rasterize = "0.1.2"
-image = "0.24.9"
-insta = "1.34.0"
-ndarray = "0.15.6"
-once_cell = "1.19.0"
-pre-commit-hooks = "0.3.0"
-rand = "0.8.5"
-rayon = "1.9.0"
-rstest = "0.18.2"
-thiserror = "1.0.57"
-voronator = "0.2.1"
-
+euclid = { version =  "0.22.9", features = [] }
+geo = { version = "0.28.0", features = [] }
+geo-rasterize = { version = "0.1.2", features = [] }
+image = { version = "0.24.9", features = [] }
+insta = { version = "1.34.0", features = [] }
+kiddo = { version =  "4.2.0", features = [] }
+ndarray = { version = "0.15.6", features = [] }
+once_cell = { version = "1.19.0", features = [] }
+pre-commit-hooks = { version =  "0.3.0", features = [] }
+rand = { version = "0.8.5", features = [] }
+rayon = { version = "1.9.0", features = [] }
+rstest = { version = "0.18.2", features = [] }
+thiserror = { version = "1.0.57", features = [] }
+voronator = { version = "0.2.1", features = [] }
+ 
 [workspace.metadata.precommit]
 fmt = "cargo fmt --check --all"
 check = "cargo clippy -r --workspace --frozen"
