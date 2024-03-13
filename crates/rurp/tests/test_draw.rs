@@ -16,5 +16,6 @@ fn test_draw_a_grid() {
         .unwrap()
         .join("tests/snapshots")
         .join("test_plot_a_grid_1.png");
+    let _ = std::fs::remove_file(&file_path);
     write_grid_data(&grid, file_path.to_str().unwrap()).unwrap();
 }

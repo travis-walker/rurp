@@ -29,10 +29,24 @@ pub fn build_stub_points(bounds: &Bounds, point_count: &usize) -> Vec<Point> {
 #[macro_export]
 macro_rules! assert_grid_matches_snapshot {
     ($grid:expr, $id:expr) => {
-        let file_path = std::env::current_dir()
-            .unwrap()
-            .join("tests/snapshots")
-            .join(format!("{}.png", $id));
-        rurp::draw::write_grid_data(&$grid, file_path.to_str().unwrap()).unwrap();
+        let cwd = std::env::current_dir().unwrap();
+        let file_path = cwd.clone().join(format!("tests/snapshots/{}.png", $id));
+        let new_file_path = cwd.clone().join(format!("tests/snapshots/{}.new.png", $id));
+        if new_file_path.is_file() {
+            std::fs::remove_file(&new_file_path).unwrap();
+        }
+        rurp::draw::write_grid_data(&$grid, new_file_path.to_str().unwrap()).unwrap();
+
+        if !file_path.is_file() {
+            panic!("New snapshot created");
+        }
+
+        let existing_file = std::fs::read(&file_path).unwrap();
+        let new_file = std::fs::read(&new_file_path).unwrap();
+        if existing_file == new_file {
+            std::fs::remove_file(&new_file_path).unwrap();
+        } else {
+            panic!("Snapshot does not match");
+        }
     };
 }

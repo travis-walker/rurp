@@ -1,7 +1,7 @@
 use crate::{equivalent, grid::Grid, normalize};
 use image::ImageBuffer;
 
-use std::{error::Error, fs};
+use std::error::Error;
 
 /// Write grid data to an image file.
 /// # Errors
@@ -33,7 +33,6 @@ pub fn write_grid_data(grid: &Grid, path: &str) -> Result<(), Box<dyn Error>> {
         };
         image::Luma([pixel_value])
     });
-    let _ = fs::remove_file(path);
     img.save(path)?;
     Ok(())
 }
