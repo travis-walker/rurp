@@ -27,5 +27,8 @@ fn test_interpolate(
 
     interpolate(&mut grid, &points, power);
 
-    assert_grid_matches_snapshot!(grid, format!("test_interpolate_idw_global_{}", case_number));
+    utils::assert_grid_matches_snapshot(
+        &grid,
+        &format!("test_interpolate_idw_global_{}", case_number),
+    );
 }

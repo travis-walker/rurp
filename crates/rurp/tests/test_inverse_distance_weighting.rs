@@ -27,5 +27,5 @@ fn test_interpolate(
 
     interpolate(&mut grid, &points, power, radius, min_neighbors);
 
-    assert_grid_matches_snapshot!(grid, format!("test_interpolate_idw_{}", case_number));
+    utils::assert_grid_matches_snapshot(&grid, &format!("test_interpolate_idw_{}", case_number));
 }

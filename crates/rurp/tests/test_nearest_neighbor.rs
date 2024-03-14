@@ -20,7 +20,10 @@ fn test_interpolate(
 
     interpolate(&mut grid, &points).unwrap();
 
-    assert_grid_matches_snapshot!(grid, format!("test_interpolate_nearest_{}", case_number));
+    utils::assert_grid_matches_snapshot(
+        &grid,
+        &format!("test_interpolate_nearest_{}", case_number),
+    );
 }
 
 #[rstest]

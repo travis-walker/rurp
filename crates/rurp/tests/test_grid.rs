@@ -105,7 +105,7 @@ fn test_rasterize_polygon(
     grid.rasterize_polygons(&[test_polygon], &[raster_label])
         .unwrap();
 
-    assert_grid_matches_snapshot!(grid, format!("test_rasterize_polygon_{}", case_number));
+    utils::assert_grid_matches_snapshot(&grid, &format!("test_rasterize_polygon_{}", case_number));
 }
 
 #[rstest]
