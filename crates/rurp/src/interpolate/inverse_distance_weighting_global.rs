@@ -6,7 +6,7 @@ use rayon::prelude::*;
 fn calculate_weight(point_a: &geo::Point, point_b: &geo::Point, power: f64) -> f64 {
     let distance = point_a.euclidean_distance(point_b);
     if distance == 0.0 {
-        return 1.;
+        return f64::INFINITY;
     }
     distance.powf(-power)
 }
