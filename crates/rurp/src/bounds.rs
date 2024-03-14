@@ -9,18 +9,22 @@ pub struct Bounds {
 
 impl Bounds {
     /// Get the left bound.
+    #[must_use]
     pub fn left(&self) -> f64 {
         self.left
     }
     /// Get the bottom bound.
+    #[must_use]
     pub fn bottom(&self) -> f64 {
         self.bottom
     }
     /// Get the right bound.
+    #[must_use]
     pub fn right(&self) -> f64 {
         self.right
     }
     /// Get the top bound.
+    #[must_use]
     pub fn top(&self) -> f64 {
         self.top
     }

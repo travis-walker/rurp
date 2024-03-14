@@ -48,12 +48,11 @@ pub fn interpolate(
     radius: f64,
     min_neighbors: usize,
 ) {
-    let point_tree = KdTree::from_iter(
-        points
-            .iter()
-            .enumerate()
-            .map(|(idx, point)| ([point.x, point.y], idx as u64)),
-    );
+    let point_tree: KdTree<f64, 2> = points
+        .iter()
+        .enumerate()
+        .map(|(idx, point)| ([point.x, point.y], idx as u64))
+        .collect();
 
     let radius_squared = radius.powi(2);
 

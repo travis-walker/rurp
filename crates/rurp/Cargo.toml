@@ -14,6 +14,7 @@ kiddo = { workspace = true }
 ndarray = { workspace = true }
 once_cell = { workspace = true }
 rayon = { workspace = true }
+spade = { workspace = true }
 thiserror = { workspace = true }
 voronator = { workspace = true }
 

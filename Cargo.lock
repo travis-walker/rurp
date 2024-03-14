@@ -1091,6 +1091,7 @@ dependencies = [
  "rand",
  "rayon",
  "rstest",
+ "spade",
  "thiserror",
  "voronator",
 ]
