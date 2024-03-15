@@ -1,0 +1,2 @@
+maturin==1.5.0
+py_rurp @ file:///home/travis/projects/rurp/crates/py-rurp
