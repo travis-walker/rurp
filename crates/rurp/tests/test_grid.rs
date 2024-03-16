@@ -3,8 +3,7 @@ use rstest::rstest;
 use rurp::bounds::Bounds;
 use rurp::equivalent;
 use rurp::grid::{Grid, ScreenSpace, WorldSpace};
-pub mod utils;
-use utils::{CONUS_BOUNDS, STUB_BOUNDS};
+use test_utils::{assert_grid_matches_snapshot, CONUS_BOUNDS, STUB_BOUNDS};
 
 #[rstest]
 #[case(4000, 710, 1351, f64::NAN)]
@@ -20,7 +19,7 @@ fn test_from_bounds(
 
     let grid = Grid::empty_from_bounds(bounds, resolution, nodata).unwrap();
 
-    let (left, bottom, right, top) = bounds.clone().into();
+    let (left, bottom, right, top) = (*bounds).into();
 
     assert_eq!(grid.width(), expected_width);
     assert_eq!(grid.height(), expected_height);
@@ -105,7 +104,7 @@ fn test_rasterize_polygon(
     grid.rasterize_polygons(&[test_polygon], &[raster_label])
         .unwrap();
 
-    utils::assert_grid_matches_snapshot(&grid, &format!("test_rasterize_polygon_{}", case_number));
+    assert_grid_matches_snapshot(&grid, &format!("test_rasterize_polygon_{}", case_number));
 }
 
 #[rstest]

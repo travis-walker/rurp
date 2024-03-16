@@ -24,7 +24,7 @@ fn test_interpolate(
     let mut grid = Grid::empty_from_bounds(bounds, resolution, f64::NAN).unwrap();
     let points = build_stub_points(bounds, &point_count);
 
-    interpolate(&mut grid, &points[..], power, radius, min_neighbors);
+    interpolate(&mut grid, &points, power, radius, min_neighbors);
 
-    assert_grid_matches_snapshot(&grid, &format!("test_interpolate_idw_{}", case_number));
+    assert_grid_matches_snapshot(&grid, &format!("test_nearest_{}", case_number));
 }

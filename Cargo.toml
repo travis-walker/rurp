@@ -1,11 +1,14 @@
 [workspace]
-members = ["crates/rurp", "py-rurp"]
+members = ["crates/rurp", "crates/test-utils", "py-rurp"]
 resolver = "2"
 
 [workspace.package]
 edition = "2021"
 
 [workspace.dependencies]
+rurp = { path = "crates/rurp" }
+test-utils = { path = "crates/test-utils" }
+
 euclid = { version = "0.22.9", features = [] }
 geo = { version = "0.28.0", features = [] }
 geo-rasterize = { version = "0.1.2", features = [] }
@@ -13,6 +16,7 @@ image = { version = "0.24.9", features = [] }
 insta = { version = "1.34.0", features = [] }
 kiddo = { version = "4.2.0", features = [] }
 ndarray = { version = "0.15.6", features = [] }
+numpy = { version = "0.20.0", features = [] }
 once_cell = { version = "1.19.0", features = [] }
 pyo3 = { version = "0.20.0", features = [] }
 rand = { version = "0.8.5", features = [] }

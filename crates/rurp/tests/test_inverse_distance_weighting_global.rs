@@ -2,8 +2,7 @@ use rstest::rstest;
 use rurp::bounds::Bounds;
 use rurp::grid::Grid;
 use rurp::interpolate::inverse_distance_weighting_global::interpolate;
-pub mod utils;
-use utils::{build_stub_points, CONUS_BOUNDS, STUB_BOUNDS};
+use test_utils::{assert_grid_matches_snapshot, build_stub_points, CONUS_BOUNDS, STUB_BOUNDS};
 
 #[rstest]
 #[case(1, &*STUB_BOUNDS, 1, 100, 1.)]
@@ -25,9 +24,9 @@ fn test_interpolate(
     let mut grid = Grid::empty_from_bounds(bounds, resolution, f64::NAN).unwrap();
     let points = build_stub_points(bounds, &point_count);
 
-    interpolate(&mut grid, &points, power);
+    interpolate(&mut grid, &points[..], power);
 
-    utils::assert_grid_matches_snapshot(
+    assert_grid_matches_snapshot(
         &grid,
         &format!("test_interpolate_idw_global_{}", case_number),
     );

@@ -50,7 +50,7 @@ impl Grid {
     /// Get the bounds of the grid.
     #[must_use]
     pub fn bounds(&self) -> Bounds {
-        self.bounds.clone()
+        self.bounds
     }
 
     /// Get the height of the grid.
@@ -106,7 +106,7 @@ impl Grid {
         resolution: usize,
         nodata: f64,
     ) -> Result<Self, Box<dyn Error>> {
-        let (left, bottom, right, top) = bounds.clone().into();
+        let (left, bottom, right, top) = (*bounds).into();
 
         let world_height = top - bottom;
         let world_width = right - left;
@@ -133,7 +133,7 @@ impl Grid {
             data,
             x,
             y,
-            bounds: bounds.clone(),
+            bounds: *bounds,
             height,
             width,
             world_height,

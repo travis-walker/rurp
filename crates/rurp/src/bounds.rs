@@ -1,5 +1,5 @@
 use std::error::Error;
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Copy)]
 pub struct Bounds {
     left: f64,
     bottom: f64,

@@ -9,4 +9,12 @@ name = "rurp"
 crate-type = ["cdylib"]
 
 [dependencies]
-pyo3 = "0.20.0"
+pyo3 = { workspace = true }
+rurp = { workspace = true }
+ndarray = { workspace = true }
+numpy = { workspace = true }
+
+
+[dev-dependencies]
+rstest = { workspace = true }
+test-utils = { workspace = true }
