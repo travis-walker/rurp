@@ -1,0 +1,56 @@
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+    -   id: check-added-large-files
+    -   id: check-merge-conflict
+    -   id: check-toml
+    -   id: check-yaml
+    -   id: detect-private-key
+    -   id: end-of-file-fixer
+    -   id: mixed-line-ending
+    -   id: requirements-txt-fixer
+    -   id: trailing-whitespace
+
+-   repo: local
+    hooks:
+    -   id: python-lint
+        name: python lint
+        entry: ruff check --force-exclude
+        language: python
+        types_or: [python, pyi]
+        args: []
+        require_serial: true
+        additional_dependencies: [ruff]
+
+    -   id: python-format
+        name: python format
+        entry: ruff format --force-exclude
+        language: python
+        types_or: [python, pyi]
+        args: []
+        require_serial: true
+        additional_dependencies: [ruff]
+
+    -   id: python-mypy
+        name: python mypy
+        entry: mypy
+        language: python
+        types_or: [python, pyi]
+        args: ["--ignore-missing-imports", "--scripts-are-modules"]
+        require_serial: true
+        additional_dependencies: [mypy]
+
+    -   id: rust-lint
+        name: rust lint
+        entry: cargo clippy --all-targets --all-features -- -D clippy::all
+        pass_filenames: false
+        types: [file, rust]
+        language: system
+
+    -   id: rust-fmt
+        name: rust format
+        entry: cargo fmt --all --
+        pass_filenames: true
+        types: [file, rust]
+        language: system

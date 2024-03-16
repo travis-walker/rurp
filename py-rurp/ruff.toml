@@ -1,0 +1,33 @@
+extend-exclude = []
+fix = true
+include = ["rurp/**/*.py", "tests/**/*.py"]
+line-length = 80
+target-version = "py312"
+
+[lint]
+select = ["ALL"]
+ignore = [
+  "COM812",
+  "COM819",
+  "D206",
+  "D211",
+  "D213",
+  "D300",
+  "E111",
+  "E114",
+  "E117",
+  "ERA",
+  "FIX",
+  "ISC001",
+  "ISC002",
+  "Q000",
+  "Q001",
+  "Q002",
+  "Q003",
+  "TD",
+  "W191",
+]
+
+[lint.per-file-ignores]
+"tests/**/test_*.py" = ["ANN201", "D", "S101"]
+"tests/**/__init__.py" = ["D"]

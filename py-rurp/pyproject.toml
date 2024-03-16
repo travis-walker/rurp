@@ -3,13 +3,24 @@ requires = ["maturin>=1.5,<2.0"]
 build-backend = "maturin"
 
 [project]
-name = "py_rurp"
+name = "rurp"
 requires-python = ">=3.12"
 classifiers = [
     "Programming Language :: Rust",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
 ]
+
 dynamic = ["version"]
+
 [tool.maturin]
 features = ["pyo3/extension-module"]
+
+[tool.pytest.ini_options]
+addopts = ["--import-mode=importlib"]
+pythonpath = "rurp"
+
+[tool.mypy]
+files = ["rurp", "tests"]
+strict = true
+ignore_missing_imports = true

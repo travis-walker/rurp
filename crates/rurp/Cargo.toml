@@ -20,6 +20,5 @@ voronator = { workspace = true }
 
 [dev-dependencies]
 insta = { workspace = true }
-pre-commit-hooks = { workspace = true }
 rand = { workspace = true }
 rstest = { workspace = true }
